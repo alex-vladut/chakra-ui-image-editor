@@ -1,0 +1,39 @@
+@import "./variables";
+@import "./components/app";
+@import "./components/header";
+@import "./components/menu";
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Open Sans", sans-serif;
+  font-size: 1rem;
+  background-color: $main-bg;
+}
+
+button {
+  cursor: pointer;
+  background: 0;
+  border: 0;
+  padding: 0;
+  &:focus {
+    outline: none;
+  }
+}
+
+svg {
+  fill: $text-color;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  background: $border-color;
+  border-radius: 5px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: $text-color;
+  border-radius: 5px;
+}
