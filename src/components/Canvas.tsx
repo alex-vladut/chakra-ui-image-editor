@@ -1,58 +1,91 @@
+import { Tooltip } from "@chakra-ui/react";
 import { useEffect, useRef } from "react";
 import { useImageEditorContext } from "../hooks/useImageEditorContext";
+import { Minus, Plus } from "../icons";
 
 const Canvas = () => {
-  const { imageUrl, canvasElement, setCanvasElement } = useImageEditorContext();
+  const { imageUrl, scale, zoomIn, zoomOut, setCanvasElement } =
+    useImageEditorContext();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const canvasEl = canvasRef.current;
+
+  const onWheelHandler = (event: WheelEvent) => {
+    event.preventDefault();
+    if (!imageUrl) {
+      return;
+    }
+    if (event.deltaY > 0) {
+      zoomIn();
+    } else {
+      zoomOut();
+    }
+  };
 
   useEffect(() => {
     if (!canvasEl) return;
 
-    const ctx = canvasEl.getContext("2d");
+    setCanvasElement(canvasEl);
+    canvasEl.addEventListener("wheel", onWheelHandler);
     if (imageUrl) {
-      drawImage(imageUrl, ctx, canvasEl);
-    }
-    if (!canvasElement) {
-      setCanvasElement(canvasEl);
+      drawImage(imageUrl, canvasEl, scale);
     }
 
+    return () => {
+      canvasEl.removeEventListener("wheel", onWheelHandler);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [imageUrl]);
+  }, [canvasEl, imageUrl, scale]);
 
   return (
-    <section className="canvas">
-      <canvas
-        ref={canvasRef}
-        width={`${0.4 * window.innerWidth || 500}`}
-        height={`${0.9 * window.innerHeight || 500}`}
-      ></canvas>
+    <section className="canvas custom-scrollbar">
+      <canvas ref={canvasRef}></canvas>
+      {imageUrl && (
+        <div className="zoom">
+          <button className="zoom-in" onClick={zoomIn}>
+            <Tooltip label="Zoom In" placement="top">
+              <Plus />
+            </Tooltip>
+          </button>
+          <p>{`${Math.floor(scale * 100)}%`}</p>
+          <button className="zoom-out" onClick={zoomOut}>
+            <Tooltip label="Zoom Out" placement="top">
+              <Minus />
+            </Tooltip>
+          </button>
+        </div>
+      )}
     </section>
   );
 };
 
 function drawImage(
   imageUrl: string,
-  ctx: CanvasRenderingContext2D | null,
-  canvasEl: HTMLCanvasElement
+  canvasEl: HTMLCanvasElement,
+  scale: number
 ) {
   const img = new Image();
   img.setAttribute("crossorigin", "anonymous");
+  const ctx = canvasEl.getContext("2d");
   if (imageUrl && ctx) {
-    const canvasWidth = canvasEl.offsetWidth;
-    const canvasHeight = canvasEl.offsetHeight;
-    ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+    const parent = canvasEl.parentNode as HTMLElement;
     img.addEventListener(
       "load",
       () => {
-        const { width, height } = getImageSize(img, canvasHeight);
-        ctx.drawImage(
-          img,
-          canvasWidth / 2 - width / 2,
-          canvasHeight / 2 - height / 2,
-          width,
-          height
+        const { width, height } = getImageSize(img, scale);
+        const isInCenter = isScrollbarInCenter(
+          parent.scrollTop,
+          canvasEl.offsetHeight
         );
+
+        canvasEl.width = width;
+        canvasEl.height = height;
+
+        ctx.drawImage(img, 0, 0, width, height);
+
+        if (isInCenter) {
+          const shift = canvasEl.offsetHeight / 2 - window.innerHeight / 2;
+          parent.scrollTo(0, shift);
+        }
       },
       false
     );
@@ -60,7 +93,16 @@ function drawImage(
   img.src = imageUrl;
 }
 
-function getImageSize(img: HTMLImageElement, containerHeight: number) {
+function isScrollbarInCenter(scrollTop: number, containerHeight: number) {
+  const currentPosition = Math.floor(scrollTop);
+  const scrollbarCenterPosition = Math.floor(
+    Math.max(containerHeight / 2 - window.innerHeight / 2, 0)
+  );
+  return scrollbarCenterPosition === currentPosition;
+}
+
+function getImageSize(img: HTMLImageElement, scale: number) {
+  const containerHeight = 0.85 * window.innerHeight * scale;
   const ratio = img.width / img.height;
   const height = Math.min(containerHeight / ratio, containerHeight);
   const width = ratio * height;
