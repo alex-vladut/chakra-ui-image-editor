@@ -1,4 +1,5 @@
 import { Tooltip } from "@chakra-ui/react";
+import { useImageEditorContext } from "../hooks/useImageEditorContext";
 import { useToolbarContext } from "../hooks/useToolbarContext";
 import { Crop } from "../icons";
 import { Flip } from "../icons";
@@ -8,12 +9,16 @@ import { Text } from "../icons";
 import { Filter } from "../icons";
 
 const Menu: React.FC = () => {
+  const { setMode } = useImageEditorContext();
   const { type, toggle } = useToolbarContext();
   const items = [
     {
       icon: <Crop />,
       name: "Crop",
-      handler: () => toggle("Crop"),
+      handler: () => {
+        toggle("Crop");
+        setMode("crop");
+      },
     },
     {
       icon: <Flip />,

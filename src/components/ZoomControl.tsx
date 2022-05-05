@@ -6,9 +6,9 @@ import { useImageEditorContext } from "../hooks/useImageEditorContext";
 import { Minus, Plus } from "../icons";
 
 const ZoomControl: React.FC = () => {
-  const { imageUrl, scale, zoomIn, zoomOut } = useImageEditorContext();
+  const { imageUrl, scale, mode, zoomIn, zoomOut } = useImageEditorContext();
 
-  return imageUrl ? (
+  return imageUrl && !mode ? (
     <div className="zoom">
       <button className="zoom-in" onClick={zoomIn}>
         <Tooltip label="Zoom In" placement="top">

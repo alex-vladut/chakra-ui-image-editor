@@ -11,16 +11,28 @@ export default class CanvasAPI {
   public imageElement: HTMLImageElement;
   public canvasSize: CanvasSize = { width: 0, height: 0 };
   private cropper: Cropper;
+  private currentMode: string = "";
 
-  constructor(canvas: fabric.Canvas) {
+  constructor(
+    canvas: fabric.Canvas,
+    setWidthIndicatorValue: (value: number) => void,
+    setHeightIndicatorValue: (value: number) => void
+  ) {
     this.canvas = canvas;
     this.imageElement = new Image();
-    this.cropper = new Cropper(this);
+    this.cropper = new Cropper(
+      this,
+      setWidthIndicatorValue,
+      setHeightIndicatorValue
+    );
   }
 
-  public renderImage(imageUrl: string, scale: number): void {
+  public renderImage(imageUrl: string, scale: number, mode: string): void {
+    if (!imageUrl) {
+      return;
+    }
     this.imageElement.src = imageUrl;
-    this.imageElement.addEventListener("load", () => {
+    fabric.Image.fromURL(imageUrl, () => {
       const { width, height } = this.getImageSize(scale);
       this.setCanvasSize(width, height);
 
@@ -28,13 +40,41 @@ export default class CanvasAPI {
       const imgInstance = new fabric.Image(this.imageElement, {
         selectable: false,
         hoverCursor: "default",
+        crossOrigin: "Anonymous",
       });
       imgInstance.scaleToWidth(width);
       imgInstance.scaleToHeight(height);
       this.canvas.add(imgInstance);
 
-      this.cropper.initialize();
+      if (!mode && this.currentMode) {
+        this.destroyCurrentMode();
+        return;
+      }
+
+      if (mode) {
+        this.initializeMode(mode);
+      }
     });
+  }
+
+  public crop(url: string): void {
+    // canvasStrore.setMode("");
+    // canvasStrore.setImageUrl(url);
+    // toolbarStore.close();
+  }
+
+  private destroyCurrentMode(): void {
+    if (this.currentMode === "crop") {
+      this.currentMode = "";
+      this.cropper.destroy();
+    }
+  }
+
+  private initializeMode(mode: string): void {
+    if (mode === "crop") {
+      this.cropper.initialize();
+      this.currentMode = mode;
+    }
   }
 
   private getImageSize(scale: number): {

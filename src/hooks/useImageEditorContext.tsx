@@ -9,6 +9,8 @@ type Props = {
   setScale(scale: number): void;
   zoomIn(): void;
   zoomOut(): void;
+  mode?: string;
+  setMode(mode?: string): void;
 };
 
 const Context = createContext<Props | null>(null);
@@ -32,6 +34,7 @@ export function ImageEditorContextProvider({
   const [imageUrl, setImageUrl] = useState<string>();
   const [canvasElement, setCanvasElement] = useState<HTMLCanvasElement>();
   const [scale, setScale] = useState<number>(1);
+  const [mode, setMode] = useState<string>();
 
   const zoomIn = () => {
     if (scale >= 2) return;
@@ -54,6 +57,8 @@ export function ImageEditorContextProvider({
         setScale: changeScale,
         zoomIn,
         zoomOut,
+        mode,
+        setMode: changeMode,
       }}
     >
       {children}
@@ -67,5 +72,14 @@ export function ImageEditorContextProvider({
 
   function changeScale(value: number) {
     setScale(Number(value.toFixed(1)));
+  }
+
+  function changeMode(currentMode: string) {
+    setScale(1);
+    if (currentMode === mode) {
+      setMode(undefined);
+    } else {
+      setMode(currentMode);
+    }
   }
 }

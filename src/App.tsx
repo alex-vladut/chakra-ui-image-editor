@@ -10,6 +10,7 @@ import {
   ToolbarContextProvider,
   useToolbarContext,
 } from "./hooks/useToolbarContext";
+import { CropperContextProvider } from "./hooks/useCropperContext";
 
 export const Content = () => {
   const { isOpen } = useToolbarContext();
@@ -29,7 +30,9 @@ export function App() {
     <ChakraProvider theme={theme}>
       <ImageEditorContextProvider>
         <ToolbarContextProvider>
-          <Content />
+          <CropperContextProvider>
+            <Content />
+          </CropperContextProvider>
         </ToolbarContextProvider>
       </ImageEditorContextProvider>
     </ChakraProvider>
