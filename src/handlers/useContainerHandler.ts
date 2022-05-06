@@ -1,35 +1,39 @@
-import { createRef, useEffect } from "react";
+import { createRef, useEffect, useRef } from "react";
 import { fabric } from "fabric";
 
 import { useCanvasContext } from "../hooks/useCanvasContext";
+import { useDimensions } from "@chakra-ui/react";
 
 export function useContainerHandler() {
   const containerRef = createRef<HTMLDivElement>();
-  const { canvas, setCanvas, setContainerElement } = useCanvasContext();
+  const canvasRef = useRef<fabric.Canvas>();
+  const { setCanvas, setContainerElement } = useCanvasContext();
+  const dimensions = useDimensions(containerRef, true);
 
   useEffect(() => {
-    if (!containerRef?.current) return;
+    if (!containerRef.current || canvasRef.current) return;
 
     const initialHeigh = containerRef.current.clientHeight;
     const initialWidth = containerRef.current.clientWidth;
 
-    const canvas = new fabric.Canvas("canvas", {
+    // prevent canvas from being instantiated twice due to React 18 useEffect behaviour
+    canvasRef.current = new fabric.Canvas("canvas", {
       height: initialHeigh,
       width: initialWidth,
     });
-
-    setCanvas(canvas);
+    setCanvas(canvasRef.current);
     setContainerElement(containerRef.current);
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
-    if (!containerRef?.current || !canvas) return;
+    if (!dimensions || !canvasRef.current) return;
 
-    const width = containerRef.current.clientWidth;
-    const height = containerRef.current.clientHeight;
-    canvas.setHeight(height).setWidth(width);
-    canvas.renderAll();
-  }, [canvas]); // eslint-disable-line react-hooks/exhaustive-deps
+    canvasRef.current
+      .setWidth(dimensions.contentBox.width)
+      .setHeight(dimensions.contentBox.height)
+      .renderAll();
+  }, [dimensions]);
 
   return containerRef;
 }

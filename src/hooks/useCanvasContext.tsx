@@ -8,6 +8,11 @@ import {
 } from "react";
 import { fabric } from "fabric";
 
+const SCALE_STEP: number = 0.1;
+const SCALE_MAX_VALUE: number = 2;
+const SCALE_MIN_VALUE: number = 0.5;
+const SCALE_DEFAULT_VALUE: number = 1;
+
 interface CanvasContext {
   zoomRatio: number;
   setZoomRatio: (value: number) => void;
@@ -29,21 +34,24 @@ export const CanvasContextProvider: FC<{ children: ReactNode }> = ({
   const [canvas, setCanvas] = useState<fabric.Canvas | null>(null);
   const [containerElement, setContainerElement] = useState<HTMLDivElement>();
   const [activeObject, setActiveObject] = useState<fabric.Object | null>(null);
-  const [zoomRatio, setZoomRatio] = useState(1);
+  const [zoomRatio, setZoomRatio] = useState(SCALE_DEFAULT_VALUE);
 
   const changeZoomRatio = useCallback((value: number) => {
-    const roundedToStep = Math.round(value * 10) / 10;
-    setZoomRatio(Math.min(Math.max(roundedToStep, 0.5), 2));
+    const roundedToStep =
+      Math.round(value * SCALE_STEP * 100) / (SCALE_STEP * 100);
+    setZoomRatio(
+      Math.min(Math.max(roundedToStep, SCALE_MIN_VALUE), SCALE_MAX_VALUE)
+    );
   }, []);
 
   const zoomIn = useCallback(() => {
-    if (zoomRatio >= 2) return;
-    changeZoomRatio(zoomRatio + 0.1);
+    if (zoomRatio >= SCALE_MAX_VALUE) return;
+    changeZoomRatio(zoomRatio + SCALE_STEP);
   }, [changeZoomRatio, zoomRatio]);
 
   const zoomOut = useCallback(() => {
-    if (zoomRatio <= 0.5) return;
-    changeZoomRatio(zoomRatio - 0.1);
+    if (zoomRatio <= SCALE_MIN_VALUE) return;
+    changeZoomRatio(zoomRatio - SCALE_STEP);
   }, [changeZoomRatio, zoomRatio]);
 
   const context = {
