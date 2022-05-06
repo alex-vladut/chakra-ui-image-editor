@@ -31,8 +31,6 @@ type CropInfo = {
   left: number;
   width: number;
   height: number;
-  initiated?: boolean;
-  isFocused?: boolean;
 };
 
 export type Ratio = {
@@ -46,19 +44,18 @@ export function useCropHandler() {
   const { canvas } = useCanvasContext();
   const [ratio, setRatio] = useState<Ratio | null>(null);
   const [cropInfo, setCropInfo] = useState<CropInfo | null>(null);
+  const [isFocused, setFocused] = useState(false);
 
   const open = useCallback(() => {
     if (!canvas) return;
 
-    const width = 600;
-    const height = 400;
+    const width = canvas.width || 600;
+    const height = canvas.height || 400;
     setCropInfo({
       top: 0,
       left: 0,
       width,
       height,
-      initiated: false,
-      isFocused: true,
     });
     setRatio({ width, height });
   }, [canvas]);
@@ -68,12 +65,12 @@ export function useCropHandler() {
       if (!cropInfo || !canvas || !canvas.width || !canvas.height) return;
 
       left = Math.max(left, 0);
-      if (left + canvas.width > canvas.width) {
+      if (left + cropInfo.width > canvas.width) {
         left = canvas.width - cropInfo.width;
       }
 
       top = Math.max(top, 0);
-      if (top + canvas.height > canvas.height) {
+      if (top + cropInfo.height > canvas.height) {
         top = canvas.height - cropInfo.height;
       }
       setCropInfo((previous) => (previous ? { ...previous, top, left } : null));
@@ -109,32 +106,28 @@ export function useCropHandler() {
   useEffect(() => {
     if (!cropInfo || !canvas) return;
 
-    if (innerRectRef.current) {
-      canvas.remove(innerRectRef.current);
-    }
-    innerRectRef.current = renderInnerRect(cropInfo);
-    canvas.add(innerRectRef.current);
-    canvas.setActiveObject(innerRectRef.current);
-
     if (outerRectRef.current) {
       canvas.remove(outerRectRef.current);
     }
     outerRectRef.current = renderOuterRect(canvas, cropInfo);
     canvas.add(outerRectRef.current);
-  }, [canvas, cropInfo]);
+
+    if (innerRectRef.current) {
+      canvas.remove(innerRectRef.current);
+    }
+    innerRectRef.current = renderInnerRect(cropInfo, isFocused);
+    canvas.add(innerRectRef.current);
+    canvas.setActiveObject(innerRectRef.current);
+  }, [canvas, cropInfo, isFocused]);
 
   const onMouseDown = useCallback((e: fabric.IEvent) => {
     if (e?.target?.name !== CROP_OBJECT_NAME) return;
 
-    setCropInfo((previous) =>
-      previous ? { ...previous, isFocused: true } : null
-    );
+    setFocused(true);
   }, []);
 
   const onMouseUp = useCallback((e: fabric.IEvent) => {
-    setCropInfo((previous) =>
-      previous ? { ...previous, isFocused: false } : null
-    );
+    setFocused(false);
   }, []);
 
   const onObjectMoving = useCallback(
@@ -171,57 +164,57 @@ export function useCropHandler() {
         corner,
       } = getScalingEventData(canvas, e);
 
-      const resizeData: any = {
+      const resizeData: { [key: string]: CropInfo } = {
         tl: {
           width: width - (endX - startLeft),
           height: height - (endY - startTop),
-          x: endX,
-          y: endY,
+          left: endX,
+          top: endY,
         },
         mt: {
           width: width,
           height: height - (endY - startTop),
-          x: endLeft,
-          y: endY,
+          left: endLeft,
+          top: endY,
         },
         tr: {
           width: width + (endX - (startLeft + width)),
           height: height - (endY - startTop),
-          x: endLeft,
-          y: endY,
+          left: endLeft,
+          top: endY,
         },
 
         mr: {
           width: width + (endX - (startLeft + width)),
           height: height,
-          x: endLeft,
-          y: endTop,
+          left: endLeft,
+          top: endTop,
         },
         br: {
           width: width + (endX - (startLeft + width)),
           height: height + (endY - (startTop + height)),
-          x: endLeft,
-          y: endTop,
+          left: endLeft,
+          top: endTop,
         },
 
         mb: {
           width: width,
           height: height + (endY - (startTop + height)),
-          x: endLeft,
-          y: endTop,
+          left: endLeft,
+          top: endTop,
         },
 
         bl: {
           width: width - (endX - startLeft),
           height: height + (endY - (startTop + height)),
-          x: endX,
-          y: endTop,
+          left: endX,
+          top: endTop,
         },
         ml: {
           width: width - (endX - startLeft),
           height: height,
-          x: endX,
-          y: endTop,
+          left: endX,
+          top: endTop,
         },
       };
       resize(resizeData[corner], corner);
@@ -248,17 +241,18 @@ export function useCropHandler() {
   return { open };
 }
 
-function renderInnerRect(cropInfo: CropInfo): fabric.Group {
+function renderInnerRect(cropInfo: CropInfo, isFocused: boolean): fabric.Group {
   const grid = renderGrid(cropInfo);
   const frame = renderFrame(cropInfo);
-  const group = cropInfo.isFocused ? [grid, frame] : [frame];
+  const group = isFocused ? [grid, frame] : [frame];
 
   return new fabric.Group(group, {
     name: CROP_OBJECT_NAME,
     cornerColor: "transparent",
     selectable: true,
-    hasControls: false,
+    hasControls: true,
     hasBorders: false,
+    hasRotatingPoint: false,
   });
 }
 

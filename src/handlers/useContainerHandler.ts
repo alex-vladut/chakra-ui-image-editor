@@ -21,6 +21,7 @@ export function useContainerHandler() {
       height: initialHeigh,
       width: initialWidth,
       selection: false,
+      preserveObjectStacking: true,
     });
     setCanvas(canvasRef.current);
     setContainerElement(containerRef.current);
