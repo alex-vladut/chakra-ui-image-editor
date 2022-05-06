@@ -13,13 +13,14 @@ export function useContainerHandler() {
   useEffect(() => {
     if (!containerRef.current || canvasRef.current) return;
 
-    const initialHeigh = containerRef.current.clientHeight;
-    const initialWidth = containerRef.current.clientWidth;
+    const initialHeigh = 0.95 * containerRef.current.clientHeight;
+    const initialWidth = 0.9 * containerRef.current.clientWidth;
 
     // prevent canvas from being instantiated twice due to React 18 useEffect behaviour
     canvasRef.current = new fabric.Canvas("canvas", {
       height: initialHeigh,
       width: initialWidth,
+      selection: false,
     });
     setCanvas(canvasRef.current);
     setContainerElement(containerRef.current);
