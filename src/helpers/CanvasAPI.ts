@@ -27,10 +27,7 @@ export default class CanvasAPI {
     );
   }
 
-  public renderImage(imageUrl: string, scale: number, mode: string): void {
-    if (!imageUrl) {
-      return;
-    }
+  public renderImage(imageUrl: string, scale: number, mode?: string): void {
     this.imageElement.src = imageUrl;
     fabric.Image.fromURL(imageUrl, () => {
       const { width, height } = this.getImageSize(scale);

@@ -1,10 +1,17 @@
-import { createContext, ReactNode, useContext, useState } from "react";
+import {
+  createContext,
+  ReactNode,
+  RefObject,
+  useCallback,
+  useContext,
+  useRef,
+  useState,
+} from "react";
 
 type Props = {
   imageUrl?: string;
   setImageUrl(imageUrl?: string): void;
-  canvasElement?: HTMLCanvasElement;
-  setCanvasElement(canvasElement?: HTMLCanvasElement): void;
+  canvasRef: RefObject<HTMLCanvasElement>;
   scale: number;
   setScale(scale: number): void;
   zoomIn(): void;
@@ -32,27 +39,26 @@ export function ImageEditorContextProvider({
   children: ReactNode;
 }) {
   const [imageUrl, setImageUrl] = useState<string>();
-  const [canvasElement, setCanvasElement] = useState<HTMLCanvasElement>();
   const [scale, setScale] = useState<number>(1);
   const [mode, setMode] = useState<string>();
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  const zoomIn = () => {
+  const zoomIn = useCallback(() => {
     if (scale >= 2) return;
     setScale(scale + 0.1);
-  };
+  }, [scale]);
 
-  const zoomOut = () => {
+  const zoomOut = useCallback(() => {
     if (scale <= 0.5) return;
     setScale(scale - 0.1);
-  };
+  }, [scale]);
 
   return (
     <Context.Provider
       value={{
+        canvasRef,
         imageUrl,
         setImageUrl: changeImageUrl,
-        canvasElement,
-        setCanvasElement,
         scale,
         setScale: changeScale,
         zoomIn,

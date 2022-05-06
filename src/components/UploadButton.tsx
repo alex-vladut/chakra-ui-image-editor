@@ -2,11 +2,12 @@ import { useRef, ChangeEvent } from "react";
 import { Tooltip } from "@chakra-ui/react";
 
 import { Upload } from "../icons";
-import { useImageEditorContext } from "../hooks/useImageEditorContext";
+import { useUploadImageHandler } from "../handlers/useUploadImageHandler";
 
 const UploadButton = () => {
   const inputFileRef = useRef<HTMLInputElement>(null);
-  const { setImageUrl } = useImageEditorContext();
+
+  const upload = useUploadImageHandler();
 
   const uploadImage = (event: ChangeEvent<HTMLInputElement>) => {
     const target = event.target as HTMLInputElement;
@@ -18,7 +19,7 @@ const UploadButton = () => {
 
     const reader = new FileReader();
     reader.onloadend = () => {
-      setImageUrl(String(reader.result));
+      upload(String(reader.result));
     };
     reader.readAsDataURL(file);
   };

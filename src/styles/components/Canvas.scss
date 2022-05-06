@@ -17,8 +17,11 @@
     // border: 1px solid;
     // grid-column-start: 4;
     // grid-column-end: 6;
-    align-self: center;
-    justify-self: center;
+    // align-self: center;
+    // justify-self: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .zoom {

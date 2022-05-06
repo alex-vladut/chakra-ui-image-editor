@@ -6,6 +6,7 @@ import Canvas from "./components/Canvas";
 import Toolbar from "./components/Toolbar";
 import ZoomControl from "./components/ZoomControl";
 import { ImageEditorContextProvider } from "./hooks/useImageEditorContext";
+import { CanvasContextProvider } from "./hooks/useCanvasContext";
 import {
   ToolbarContextProvider,
   useToolbarContext,
@@ -28,13 +29,15 @@ export const Content = () => {
 export function App() {
   return (
     <ChakraProvider theme={theme}>
-      <ImageEditorContextProvider>
-        <ToolbarContextProvider>
-          <CropperContextProvider>
-            <Content />
-          </CropperContextProvider>
-        </ToolbarContextProvider>
-      </ImageEditorContextProvider>
+      <CanvasContextProvider>
+        <ImageEditorContextProvider>
+          <ToolbarContextProvider>
+            <CropperContextProvider>
+              <Content />
+            </CropperContextProvider>
+          </ToolbarContextProvider>
+        </ImageEditorContextProvider>
+      </CanvasContextProvider>
     </ChakraProvider>
   );
 }
