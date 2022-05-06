@@ -47,7 +47,7 @@
     ]
   },
   "devDependencies": {
-    "@types/fabric": "^4.5.7",
+    "@types/fabric": "^3.6.5",
     "@types/react-transition-group": "^4.4.4"
   }
 }

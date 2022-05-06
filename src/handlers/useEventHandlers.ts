@@ -11,19 +11,14 @@ export function useEventHandlers() {
    */
 
   const onMouseWheel = useCallback(
-    (event: fabric.IEvent<WheelEvent>) => {
-      // if (canvas && event.e.ctrlKey) {
+    (event: fabric.IEvent) => {
       if (canvas) {
-        const delta = event.e.deltaY;
-        // let zoomRatio = canvas.getZoom();
+        const delta = (event.e as any).deltaY;
         if (delta > 0) {
-          // zoomRatio -= 0.04;
           zoomOut();
         } else {
-          // zoomRatio += 0.04;
           zoomIn();
         }
-        // setZoomRatio(zoomRatio);
       }
       event.e.preventDefault();
       event.e.stopPropagation();

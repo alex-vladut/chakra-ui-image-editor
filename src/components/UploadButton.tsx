@@ -9,7 +9,7 @@ import { useCanvasContext } from "../hooks/useCanvasContext";
 const UploadButton = () => {
   const inputFileRef = useRef<HTMLInputElement>(null);
   const { setZoomRatio } = useCanvasContext();
-  const { open } = useCropHandler();
+  const { open, crop } = useCropHandler();
   const upload = useUploadImageHandler();
 
   const uploadImage = (event: ChangeEvent<HTMLInputElement>) => {
@@ -38,7 +38,8 @@ const UploadButton = () => {
       <Tooltip label="Upload an image" placement="bottom">
         <Upload onClick={clickHandler} />
       </Tooltip>
-      <Button onClick={onOpen}>Crop</Button>
+      <Button onClick={onOpen}>Start</Button>
+      <Button onClick={crop}>Apply</Button>
       <input
         ref={inputFileRef}
         type="file"

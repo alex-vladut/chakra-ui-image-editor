@@ -1,6 +1,7 @@
 import { fabric } from "fabric";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useCanvasContext } from "../hooks/useCanvasContext";
+import { useUploadImageHandler } from "./useUploadImageHandler";
 
 const CROP_OBJECT_NAME = "crop-zone";
 const FRAME_WIDTH: number = 3;
@@ -45,6 +46,7 @@ export function useCropHandler() {
   const [ratio, setRatio] = useState<Ratio | null>(null);
   const [cropInfo, setCropInfo] = useState<CropInfo | null>(null);
   const [isFocused, setFocused] = useState(false);
+  const upload = useUploadImageHandler();
 
   const open = useCallback(() => {
     if (!canvas) return;
@@ -59,6 +61,32 @@ export function useCropHandler() {
     });
     setRatio({ width, height });
   }, [canvas]);
+
+  const close = useCallback(() => {
+    if (!canvas) return;
+
+    if (innerRectRef.current) {
+      canvas.remove(innerRectRef.current);
+    }
+    if (outerRectRef.current) {
+      canvas.remove(outerRectRef.current);
+    }
+  }, [canvas]);
+
+  const crop = useCallback(() => {
+    if (!cropInfo || !canvas) return;
+
+    close();
+
+    const croppedImageUrl = canvas.toDataURL({
+      left: cropInfo.left,
+      top: cropInfo.top,
+      width: cropInfo.width,
+      height: cropInfo.height,
+    });
+
+    upload(croppedImageUrl);
+  }, [canvas, close, cropInfo, upload]);
 
   const move = useCallback(
     (left: number, top: number) => {
@@ -238,7 +266,7 @@ export function useCropHandler() {
     };
   }, [canvas, onMouseDown, onMouseUp, onObjectMoving, onObjectScaling]);
 
-  return { open };
+  return { open, close, crop };
 }
 
 function renderInnerRect(cropInfo: CropInfo, isFocused: boolean): fabric.Group {
