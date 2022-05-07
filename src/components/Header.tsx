@@ -1,38 +1,47 @@
 import { Tooltip } from "@chakra-ui/react";
 import React from "react";
 import { ColorModeSwitcher } from "../ColorModeSwitcher";
-import { Refresh } from "../icons";
 import { Undo } from "../icons";
 import { Redo } from "../icons";
 
 import UploadButton from "./UploadButton";
 import SaveButton from "./SaveButton";
-
-const buttons = [
-  <Tooltip label="Refresh" placement="bottom">
-    <Refresh />
-  </Tooltip>,
-  <Tooltip label="Undo" placement="bottom">
-    <Undo />
-  </Tooltip>,
-  <Tooltip label="Redo" placement="bottom">
-    <Redo />
-  </Tooltip>,
-  <UploadButton />,
-  <SaveButton />,
-];
+import { useToolbarContext } from "../hooks/useToolbarContext";
+import ZoomControl from "./ZoomControl";
 
 const Header: React.FC = () => {
+  const { isOpen } = useToolbarContext();
   return (
-    <header className="header">
+    <header className={`header ${isOpen ? "header_toolbar-open" : ""}`}>
       <div className="header__items">
-        {buttons.map((button, index) => (
-          <React.Fragment key={index}>
-            <div className="header__item">{button}</div>
-            {index === 2 && <div className="separator"></div>}
-          </React.Fragment>
-        ))}
-        <ColorModeSwitcher justifySelf="flex-end" />
+        <div className="header__items-group">
+          <div className="header__item">
+            <Tooltip label="Undo" placement="bottom">
+              <Undo />
+            </Tooltip>
+          </div>
+          <div className="header__item">
+            <Tooltip label="Redo" placement="bottom">
+              <Redo />
+            </Tooltip>
+          </div>
+        </div>
+        <div className="header__items-group">
+          <div className="header__item">
+            <ZoomControl />
+          </div>
+        </div>
+        <div className="header__items-group">
+          <div className="header__item">
+            <UploadButton />
+          </div>
+          <div className="header__item">
+            <SaveButton />
+          </div>
+          <div className="header__item">
+            <ColorModeSwitcher justifySelf="flex-end" />
+          </div>
+        </div>
       </div>
     </header>
   );

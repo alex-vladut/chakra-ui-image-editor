@@ -43,9 +43,13 @@ export function useCropHandler() {
   const innerRectRef = useRef<fabric.Group | null>(null);
   const outerRectRef = useRef<fabric.Path | null>(null);
   const { canvas } = useCanvasContext();
+  // TODO: this could probably be turned into a single number instead of holding both width and height
   const [ratio, setRatio] = useState<Ratio | null>(null);
   const [cropInfo, setCropInfo] = useState<CropInfo | null>(null);
   const [isFocused, setFocused] = useState(false);
+  const [activeInput, setActiveInput] = useState<"height" | "width" | null>(
+    null
+  );
   const upload = useUploadImageHandler();
 
   const open = useCallback(() => {
@@ -71,6 +75,7 @@ export function useCropHandler() {
     if (outerRectRef.current) {
       canvas.remove(outerRectRef.current);
     }
+    setRatio(null);
   }, [canvas]);
 
   const crop = useCallback(() => {
@@ -129,6 +134,73 @@ export function useCropHandler() {
       );
     },
     [canvas, cropInfo, ratio]
+  );
+
+  const updateWidth = useCallback(
+    (cropZoneWidth: number) => {
+      if (!cropInfo || !canvas) return;
+
+      if (cropZoneWidth && cropInfo.width !== cropZoneWidth) {
+        const { minWidth } = getMinSize(ratio, cropInfo);
+        const maxSize = getMaxSize("br", canvas, cropInfo, ratio);
+        if (!maxSize) return;
+        const { maxWidth } = maxSize;
+
+        let width = Math.max(cropZoneWidth, minWidth);
+        width = Math.min(width, maxWidth);
+
+        setCropInfo((previous) => (previous ? { ...previous, width } : null));
+        if (ratio) {
+          const height = getProportionalHeightValue(width, ratio);
+          setCropInfo((previous) =>
+            previous ? { ...previous, height } : null
+          );
+        }
+      }
+    },
+    [canvas, cropInfo, ratio]
+  );
+
+  const updateHeight = useCallback(
+    (cropZoneHeight: number) => {
+      if (!cropInfo || !canvas) return;
+
+      if (cropZoneHeight && cropInfo.height !== cropZoneHeight) {
+        const { minHeight } = getMinSize(ratio, cropInfo);
+        const maxSize = getMaxSize("br", canvas, cropInfo, ratio);
+        if (!maxSize) return;
+        const { maxHeight } = maxSize;
+
+        let height = Math.max(cropZoneHeight, minHeight);
+        height = Math.min(height, maxHeight);
+
+        setCropInfo((previous) => (previous ? { ...previous, height } : null));
+        if (ratio) {
+          const width = getProportionalWidthValue(height, ratio);
+          setCropInfo((previous) => (previous ? { ...previous, width } : null));
+        }
+      }
+    },
+    [canvas, cropInfo, ratio]
+  );
+
+  const updateRatio = useCallback(
+    (ratio: Ratio) => {
+      if (!canvas || !canvas.width || !canvas.height || !cropInfo) return;
+
+      const { width, height } = getInitialSize(canvas, ratio);
+      if (!width || !height) return;
+
+      setCropInfo({
+        width,
+        height,
+        left: canvas.width / 2 - cropInfo.width / 2,
+        top: canvas.height / 2 - cropInfo.height / 2,
+      });
+      setFocused(true);
+      setRatio(ratio);
+    },
+    [canvas, cropInfo]
   );
 
   useEffect(() => {
@@ -266,7 +338,31 @@ export function useCropHandler() {
     };
   }, [canvas, onMouseDown, onMouseUp, onObjectMoving, onObjectScaling]);
 
-  return { open, close, crop };
+  return {
+    cropInfo,
+    open,
+    close,
+    crop,
+    // TODO: activeInput and setActiveInput could probably be moved to ToolbarCrop as not used here
+    activeInput,
+    setActiveInput,
+    updateWidth,
+    updateHeight,
+    updateRatio,
+  };
+}
+
+function getInitialSize(canvas: fabric.Canvas, ratio: Ratio | null) {
+  let width = canvas.width;
+  let height = canvas.height;
+  if (ratio && width && height) {
+    const size = convertAspectRatioToActualSize(width, height, ratio);
+    if (size) {
+      width = size.width;
+      height = size.height;
+    }
+  }
+  return { width, height };
 }
 
 function renderInnerRect(cropInfo: CropInfo, isFocused: boolean): fabric.Group {

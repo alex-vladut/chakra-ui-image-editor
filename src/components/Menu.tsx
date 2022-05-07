@@ -32,18 +32,20 @@ const Menu: React.FC = () => {
   ];
   return (
     <section className="menu">
-      {items.map((item, index) => (
-        <Tooltip key={index} label={item.name}>
-          <div
-            className={`menu__item ${
-              type === item.name ? "menu__item_active" : ""
-            }`}
-            onClick={item.handler}
-          >
-            {item.icon}
-          </div>
-        </Tooltip>
-      ))}
+      <div className="menu__wrapper">
+        {items.map((item, index) => (
+          <Tooltip key={index} label={item.name}>
+            <div
+              className={`menu__item ${
+                type === item.name ? "menu__item_active" : ""
+              }`}
+              onClick={item.handler}
+            >
+              {item.icon}
+            </div>
+          </Tooltip>
+        ))}
+      </div>
     </section>
   );
 };

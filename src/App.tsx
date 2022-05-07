@@ -7,19 +7,15 @@ import Toolbar from "./components/Toolbar";
 import ZoomControl from "./components/ZoomControl";
 import { ImageEditorContextProvider } from "./hooks/useImageEditorContext";
 import { CanvasContextProvider } from "./hooks/useCanvasContext";
-import {
-  ToolbarContextProvider,
-  useToolbarContext,
-} from "./hooks/useToolbarContext";
+import { ToolbarContextProvider } from "./hooks/useToolbarContext";
 import { CropperContextProvider } from "./hooks/useCropperContext";
 
 export const Content = () => {
-  const { isOpen } = useToolbarContext();
   return (
-    <div className={`app ${isOpen ? "toolbar_open" : ""}`}>
+    <div className="app">
       <Header />
       <Menu />
-      {isOpen && <Toolbar />}
+      <Toolbar />
       <Canvas />
       <ZoomControl />
     </div>

@@ -13,8 +13,8 @@ export function useContainerHandler() {
   useEffect(() => {
     if (!containerRef.current || canvasRef.current) return;
 
-    const initialHeigh = 0.95 * containerRef.current.clientHeight;
-    const initialWidth = 0.9 * containerRef.current.clientWidth;
+    const initialHeigh = 0.85 * containerRef.current.clientHeight;
+    const initialWidth = 0.85 * containerRef.current.clientWidth;
 
     // prevent canvas from being instantiated twice due to React 18 useEffect behaviour
     canvasRef.current = new fabric.Canvas("canvas", {
@@ -28,14 +28,14 @@ export function useContainerHandler() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useEffect(() => {
-    if (!dimensions || !canvasRef.current) return;
+  // useEffect(() => {
+  //   if (!dimensions || !canvasRef.current) return;
 
-    canvasRef.current
-      .setWidth(dimensions.contentBox.width)
-      .setHeight(dimensions.contentBox.height)
-      .renderAll();
-  }, [dimensions]);
+  //   canvasRef.current
+  //     .setWidth(dimensions.contentBox.width)
+  //     .setHeight(dimensions.contentBox.height)
+  //     .renderAll();
+  // }, [dimensions]);
 
   return containerRef;
 }

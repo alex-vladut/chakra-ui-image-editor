@@ -1,15 +1,11 @@
 import { useRef, ChangeEvent } from "react";
-import { Button, Tooltip } from "@chakra-ui/react";
+import { Tooltip } from "@chakra-ui/react";
 
 import { Upload } from "../icons";
 import { useUploadImageHandler } from "../handlers/useUploadImageHandler";
-import { useCropHandler } from "../handlers/useCropHandler";
-import { useCanvasContext } from "../hooks/useCanvasContext";
 
 const UploadButton = () => {
   const inputFileRef = useRef<HTMLInputElement>(null);
-  const { setZoomRatio } = useCanvasContext();
-  const { open, crop } = useCropHandler();
   const upload = useUploadImageHandler();
 
   const uploadImage = (event: ChangeEvent<HTMLInputElement>) => {
@@ -38,8 +34,7 @@ const UploadButton = () => {
       <Tooltip label="Upload an image" placement="bottom">
         <Upload onClick={clickHandler} />
       </Tooltip>
-      <Button onClick={onOpen}>Start</Button>
-      <Button onClick={crop}>Apply</Button>
+
       <input
         ref={inputFileRef}
         type="file"
@@ -50,11 +45,6 @@ const UploadButton = () => {
       />
     </>
   );
-
-  function onOpen() {
-    setZoomRatio(1);
-    open();
-  }
 };
 
 export default UploadButton;

@@ -2,13 +2,12 @@
   grid-row-start: 1;
   grid-row-end: 3;
   grid-column-start: 2;
-  grid-column-end: 4;
-  margin-left: -25px;
+  grid-column-end: 5;
   background: $toolbar-bg;
-  padding: 43px 25px 0;
   overflow-y: auto;
   height: 100vh;
-  z-index: 2;
+  transition: all 0.3s;
+  color: $text-color;
   &-enter {
     transform: translateX(-200%);
   }
@@ -27,54 +26,121 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 40px;
+    padding: 1.171875vw 1.5625vw;
+    background: $border-color;
     svg {
-      width: 13px;
-      height: 13px;
+      width: 0.9375vw;
+      height: 0.9375vw;
       cursor: pointer;
     }
   }
+  &__content {
+    padding: 2.34375vw 1.5625vw;
+    display: grid;
+    grid-row-gap: 2.34375vw;
+    font-size: 0.95em;
+  }
+
+  &_search {
+    grid-column-end: 17;
+    z-index: 999;
+    padding: 3.75vw 19.6875vw;
+  }
+
+  &__block {
+    &-title {
+      margin-bottom: 1.5625vw;
+      font-weight: 600;
+      font-size: 0.95em;
+    }
+  }
+
+  &__divider {
+    width: 100%;
+    height: 0.156vw;
+    background: $border-color;
+    margin-bottom: 1.5625vw;
+  }
+
   &__form {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
+    grid-template-columns: 2fr 1fr;
+    gap: 0.78125vw;
+    &-label {
+      margin: 0;
+      align-self: center;
+      font-weight: 600;
+      font-size: 0.95em;
+    }
+    &-input {
+      width: 100%;
+      background: transparent;
+      float: right;
+      text-align: right;
+      border: 0.156vw solid $border-color;
+      font-size: 0.95em;
+      padding: 0.234375vw 0.46875vw;
+      &::-webkit-outer-spin-button,
+      &::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+      &[type="number"] {
+        -moz-appearance: textfield;
+      }
+    }
   }
-  &__label {
-    margin: 0;
-    align-self: center;
-  }
-  &__input {
-    width: 100%;
-    justify-self: end;
-    background: transparent;
-    border: 2px solid $border-color;
-  }
+
   &__options {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    column-gap: 15px;
-    row-gap: 25px;
-  }
-
-  &__option {
-    text-align: center;
-    cursor: pointer;
-    &_active {
-      border: 1px solid;
+    column-gap: 0.78125vw;
+    row-gap: 0.78125vw;
+    &_one-col {
+      grid-template-columns: 1fr;
     }
-    &-title {
-      margin: 0;
-      margin-top: 16px;
-      font-weight: 600;
+    &_three-col {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  &__option {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    height: 4.6875vw;
+    background: $border-color;
+    padding: 1.5625vw 1.172vw;
+    font-weight: 600;
+    font-size: 0.95em;
+    user-select: none;
+    &_active {
+      border: 0.3125vw solid $text-color;
+    }
+    &:hover {
+      opacity: 0.8;
+    }
+    p {
+      margin-left: 0.78125vw;
     }
     svg {
-      width: 80%;
+      width: 1.5625vw;
+      height: 1.5625vw;
     }
   }
 
-  &__crop-btn {
-    padding: 12px;
-    border: 1px solid;
-    margin: 20px 0 0;
+  &__action-btn {
+    background: $text-color;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    height: 3.906vw;
+    font-size: 0.95em;
+    transition: all 0.3s;
+    &:hover {
+      opacity: 0.8;
+    }
   }
 }
