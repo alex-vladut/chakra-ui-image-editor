@@ -42,21 +42,17 @@ export type Ratio = {
 export function useCropHandler() {
   const innerRectRef = useRef<fabric.Group | null>(null);
   const outerRectRef = useRef<fabric.Path | null>(null);
-  const { canvas } = useCanvasContext();
+  const { canvas, width, height } = useCanvasContext();
   // TODO: this could probably be turned into a single number instead of holding both width and height
   const [ratio, setRatio] = useState<Ratio | null>(null);
   const [cropInfo, setCropInfo] = useState<CropInfo | null>(null);
   const [isFocused, setFocused] = useState(false);
-  const [activeInput, setActiveInput] = useState<"height" | "width" | null>(
-    null
-  );
+
   const upload = useUploadImageHandler();
 
   const open = useCallback(() => {
     if (!canvas) return;
 
-    const width = canvas.width || 600;
-    const height = canvas.height || 400;
     setCropInfo({
       top: 0,
       left: 0,
@@ -64,7 +60,7 @@ export function useCropHandler() {
       height,
     });
     setRatio({ width, height });
-  }, [canvas]);
+  }, [canvas, height, width]);
 
   const close = useCallback(() => {
     if (!canvas) return;
@@ -75,6 +71,7 @@ export function useCropHandler() {
     if (outerRectRef.current) {
       canvas.remove(outerRectRef.current);
     }
+    setCropInfo(null);
     setRatio(null);
   }, [canvas]);
 
@@ -343,9 +340,6 @@ export function useCropHandler() {
     open,
     close,
     crop,
-    // TODO: activeInput and setActiveInput could probably be moved to ToolbarCrop as not used here
-    activeInput,
-    setActiveInput,
     updateWidth,
     updateHeight,
     updateRatio,

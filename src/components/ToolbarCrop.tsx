@@ -13,14 +13,15 @@ const aspectRatioList = [
 ];
 
 export const ToolbarCrop: React.FC = () => {
+  const [activeInput, setActiveInput] = useState<"height" | "width" | null>(
+    null
+  );
   const { setZoomRatio } = useCanvasContext();
   const {
     cropInfo,
-    activeInput,
     open,
     crop,
     close,
-    setActiveInput,
     updateWidth,
     updateHeight,
     updateRatio,
@@ -70,7 +71,6 @@ export const ToolbarCrop: React.FC = () => {
         <input
           type="number"
           className="toolbar__form-input"
-          // TODO: move it to the onChangeWidth
           value={Math.floor(width)}
           min={0}
           onChange={onChangeWidth}
@@ -88,7 +88,6 @@ export const ToolbarCrop: React.FC = () => {
         <input
           type="number"
           className="toolbar__form-input"
-          // TODO: move Math.floor to the onChangeWidth
           value={Math.floor(height)}
           min={0}
           onChange={onChangeHeight}
