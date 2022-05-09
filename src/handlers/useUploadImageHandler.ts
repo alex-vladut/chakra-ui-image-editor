@@ -7,8 +7,6 @@ export function useUploadImageHandler() {
     containerElement,
     setOriginalUrl,
     setUrl,
-    setWidth,
-    setHeight,
     setBaseScale,
     setZoomRatio,
   } = useCanvasContext();
@@ -22,21 +20,10 @@ export function useUploadImageHandler() {
       imageElement.src = imageUrl;
 
       fabric.Image.fromURL(imageUrl, (originalImage) => {
-        const { width: originalWidth, height: originalHeight } =
-          originalImage.getBoundingRect();
-        const containerHeight = containerElement.clientHeight;
-        const containerWidth = containerElement.clientWidth;
-        const ratio = originalWidth / originalHeight;
+        const { height: originalHeight } = originalImage.getBoundingRect();
 
-        let height = containerHeight;
-        let width = ratio * height;
-        if (width > containerWidth) {
-          width = containerWidth;
-          height = width / ratio;
-        }
-        const baseScale = getBaseScale(containerElement, height);
-        setWidth(width);
-        setHeight(height);
+        const baseScale = getBaseScale(containerElement, originalHeight);
+
         setOriginalUrl(imageUrl);
         setUrl(imageUrl);
 
@@ -44,15 +31,7 @@ export function useUploadImageHandler() {
         setZoomRatio(baseScale);
       });
     },
-    [
-      containerElement,
-      setBaseScale,
-      setHeight,
-      setOriginalUrl,
-      setUrl,
-      setWidth,
-      setZoomRatio,
-    ]
+    [containerElement, setBaseScale, setOriginalUrl, setUrl, setZoomRatio]
   );
 }
 

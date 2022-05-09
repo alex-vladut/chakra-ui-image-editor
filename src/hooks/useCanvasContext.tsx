@@ -5,11 +5,12 @@ import {
   ReactNode,
   useContext,
   useCallback,
+  useMemo,
 } from "react";
 import { fabric } from "fabric";
 
 const SCALE_STEP: number = 0.1;
-const SCALE_MAX_VALUE: number = 2;
+const SCALE_MAX_VALUE: number = 3;
 const SCALE_MIN_VALUE: number = 0.5;
 const SCALE_DEFAULT_VALUE: number = 1;
 
@@ -23,9 +24,7 @@ interface CanvasContext {
   url: string | null;
   setUrl: (url: string) => void;
   width: number;
-  setWidth: (width: number) => void;
   height: number;
-  setHeight: (height: number) => void;
   containerElement: HTMLDivElement | null;
   setContainerElement: (containerElement: HTMLDivElement) => void;
   canvas: fabric.Canvas | null;
@@ -43,8 +42,6 @@ export const CanvasContextProvider: FC<{ children: ReactNode }> = ({
 }) => {
   const [originalUrl, setOriginalUrl] = useState<string | null>(null);
   const [url, setUrl] = useState<string | null>(null);
-  const [width, setWidth] = useState(0);
-  const [height, setHeight] = useState(0);
 
   const [canvas, setCanvas] = useState<fabric.Canvas | null>(null);
   const [containerElement, setContainerElement] =
@@ -72,15 +69,27 @@ export const CanvasContextProvider: FC<{ children: ReactNode }> = ({
     changeZoomRatio(zoomRatio - SCALE_STEP);
   }, [changeZoomRatio, zoomRatio]);
 
+  const { width, height } = useMemo(() => {
+    if (!url) return { width: 0, height: 0 };
+    const imageElement = new Image();
+    imageElement.setAttribute("crossorigin", "anonymous");
+    imageElement.src = url;
+    const image = new fabric.Image(imageElement, {
+      selectable: false,
+      hoverCursor: "default",
+      crossOrigin: "anonymous",
+    });
+    const { width, height } = image.getBoundingRect();
+    return { width, height };
+  }, [url]);
+
   const context = {
     originalUrl,
     setOriginalUrl,
     url,
     setUrl,
     width,
-    setWidth,
     height,
-    setHeight,
     // TODO: maybe it is not necessary to store a reference to the canvas
     canvas,
     setCanvas,
