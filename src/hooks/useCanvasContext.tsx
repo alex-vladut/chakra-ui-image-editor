@@ -22,9 +22,6 @@ interface CanvasContext {
   setOriginalUrl: (originalUrl: string) => void;
   url: string | null;
   setUrl: (url: string) => void;
-  imageElement: HTMLImageElement;
-  image: fabric.Image | null;
-  setImage: (image: fabric.Image) => void;
   width: number;
   setWidth: (width: number) => void;
   height: number;
@@ -41,14 +38,11 @@ interface CanvasContext {
 
 export const Context = createContext<CanvasContext | null>(null);
 
-const imageElement = createImageElement();
-
 export const CanvasContextProvider: FC<{ children: ReactNode }> = ({
   children,
 }) => {
   const [originalUrl, setOriginalUrl] = useState<string | null>(null);
   const [url, setUrl] = useState<string | null>(null);
-  const [image, setImage] = useState<fabric.Image | null>(null);
   const [width, setWidth] = useState(0);
   const [height, setHeight] = useState(0);
 
@@ -83,9 +77,6 @@ export const CanvasContextProvider: FC<{ children: ReactNode }> = ({
     setOriginalUrl,
     url,
     setUrl,
-    imageElement,
-    image,
-    setImage,
     width,
     setWidth,
     height,
@@ -116,10 +107,4 @@ export function useCanvasContext() {
     );
   }
   return context;
-}
-
-function createImageElement() {
-  const image = new Image();
-  image.setAttribute("crossorigin", "anonymous");
-  return image;
 }

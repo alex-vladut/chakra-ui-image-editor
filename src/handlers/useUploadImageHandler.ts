@@ -5,8 +5,6 @@ import { useCanvasContext } from "../hooks/useCanvasContext";
 export function useUploadImageHandler() {
   const {
     containerElement,
-    imageElement,
-    zoomRatio,
     setOriginalUrl,
     setUrl,
     setWidth,
@@ -19,65 +17,43 @@ export function useUploadImageHandler() {
     (imageUrl: string) => {
       if (!containerElement) return;
 
-      setOriginalUrl(imageUrl);
-      setUrl(imageUrl);
+      const imageElement = new Image();
+      imageElement.setAttribute("crossorigin", "anonymous");
       imageElement.src = imageUrl;
-      fabric.Image.fromURL(imageUrl, () => {
-        // set rotationAngle once supported
-        const { width, height } = getSize(
-          zoomRatio,
-          0,
-          containerElement,
-          imageElement
-        );
+
+      fabric.Image.fromURL(imageUrl, (originalImage) => {
+        const { width: originalWidth, height: originalHeight } =
+          originalImage.getBoundingRect();
+        const containerHeight = containerElement.clientHeight;
+        const containerWidth = containerElement.clientWidth;
+        const ratio = originalWidth / originalHeight;
+
+        let height = containerHeight;
+        let width = ratio * height;
+        if (width > containerWidth) {
+          width = containerWidth;
+          height = width / ratio;
+        }
+        const baseScale = getBaseScale(containerElement, height);
         setWidth(width);
         setHeight(height);
-        const baseScale = getBaseScale(containerElement, height);
+        setOriginalUrl(imageUrl);
+        setUrl(imageUrl);
+
         setBaseScale(baseScale);
         setZoomRatio(baseScale);
       });
     },
     [
       containerElement,
-      imageElement,
       setBaseScale,
       setHeight,
       setOriginalUrl,
       setUrl,
       setWidth,
       setZoomRatio,
-      zoomRatio,
     ]
   );
-}
-
-function getSize(
-  scale: number,
-  rotationAngle: number,
-  containerElement: HTMLDivElement,
-  imageElement: HTMLImageElement
-) {
-  const { width: originalWidth, height: originalHeight } = getOriginalSize(
-    imageElement,
-    rotationAngle
-  );
-
-  const containerHeight = containerElement.clientHeight * scale;
-  const ratio = originalWidth / originalHeight;
-  const height = Math.min(containerHeight / ratio, containerHeight);
-  const width = ratio * height;
-  return { width, height };
-}
-
-function getOriginalSize(
-  imageElement: HTMLImageElement,
-  rotationAngle: number
-) {
-  const originalImage = new fabric.Image(imageElement);
-  // originalImage.rotate(canvas.angle).setCoords();
-  originalImage.rotate(rotationAngle).setCoords();
-  const { width, height } = originalImage.getBoundingRect();
-  return { width, height };
 }
 
 function getBaseScale(

@@ -6,16 +6,19 @@ import { useCanvasContext } from "../hooks/useCanvasContext";
 const IMAGE_OBJECT_NAME = "image";
 
 export function useRenderHandler() {
-  const { canvas, imageElement, width, height, zoomRatio } = useCanvasContext();
+  const { canvas, url, width, height, zoomRatio } = useCanvasContext();
 
   useEffect(() => {
     if (!canvas) return;
 
-    if (imageElement) {
+    if (url) {
       canvas.clear();
-      canvas.setWidth(width).setHeight(height);
-      const image = new fabric.Image(imageElement);
-      image.set({
+      canvas.setWidth(width ).setHeight(height);
+      const imageElement = new Image();
+      imageElement.setAttribute("crossorigin", "anonymous");
+      imageElement.src = url;
+
+      const image = new fabric.Image(imageElement, {
         selectable: false,
         hoverCursor: "default",
         crossOrigin: "anonymous",
@@ -26,12 +29,12 @@ export function useRenderHandler() {
       });
       image.scaleToWidth(width);
       image.scaleToHeight(height);
+      image.center();
       canvas.add(image);
-      //   canvas.setZoom(zoomRatio);
       canvas.zoomToPoint(
         new fabric.Point(canvas.getWidth() / 2, canvas.getHeight() / 2),
         zoomRatio
       );
     }
-  }, [canvas, height, imageElement, width, zoomRatio]);
+  }, [canvas, height, url, width, zoomRatio]);
 }
