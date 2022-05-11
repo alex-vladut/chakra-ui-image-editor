@@ -56,6 +56,28 @@ interface CanvasContext {
   flipY: boolean;
   toggleFlipY: () => void;
 
+  brightness: number;
+  setBrightness: (brightness: number) => void;
+  contrast: number;
+  setContrast: (contrast: number) => void;
+  saturation: number;
+  setSaturation: (saturation: number) => void;
+  tintColor: string;
+  setTintColor: (tintColor: string) => void;
+  tintOpacity: number;
+  setTintOpacity: (tintOpacity: number) => void;
+  invert: number;
+  setInvert: (invert: number) => void;
+  hue: number;
+  setHue: (hue: number) => void;
+  noise: number;
+  setNoise: (noise: number) => void;
+  blur: number;
+  setBlur: (blur: number) => void;
+  pixelate: number;
+  setPixelate: (pixelate: number) => void;
+  resetFilters: () => void;
+
   reset: () => void;
 }
 
@@ -80,6 +102,17 @@ export const CanvasContextProvider: FC<{ children: ReactNode }> = ({
   const [angleDifference, setAngleDifference] = useState(0);
   const [flipX, setFlipX] = useState(false);
   const [flipY, setFlipY] = useState(false);
+
+  const [brightness, setBrightness] = useState(0);
+  const [contrast, setContrast] = useState(0);
+  const [saturation, setSaturation] = useState(0);
+  const [tintColor, setTintColor] = useState("#000000");
+  const [tintOpacity, setTintOpacity] = useState(0);
+  const [invert, setInvert] = useState(0);
+  const [hue, setHue] = useState(0);
+  const [noise, setNoise] = useState(0);
+  const [blur, setBlur] = useState(0);
+  const [pixelate, setPixelate] = useState(1);
 
   const changeZoomRatio = useCallback((value: number) => {
     const roundedToStep =
@@ -167,13 +200,27 @@ export const CanvasContextProvider: FC<{ children: ReactNode }> = ({
     setFlipY(!flipY);
   }, [flipY]);
 
+  const resetFilters = useCallback(() => {
+    setBrightness(0);
+    setContrast(0);
+    setSaturation(0);
+    setTintColor("#000000");
+    setTintOpacity(0);
+    setInvert(0);
+    setHue(0);
+    setNoise(0);
+    setBlur(0);
+    setPixelate(1);
+  }, []);
+
   const reset = useCallback(() => {
     setBaseScale(SCALE_DEFAULT_VALUE);
     setZoomRatio(SCALE_DEFAULT_VALUE);
     setAngle(0);
     setFlipX(false);
     setFlipY(false);
-  }, []);
+    resetFilters();
+  }, [resetFilters]);
 
   const context = {
     mode,
@@ -207,6 +254,29 @@ export const CanvasContextProvider: FC<{ children: ReactNode }> = ({
     toggleFlipX,
     flipY,
     toggleFlipY,
+
+    brightness,
+    setBrightness,
+    contrast,
+    setContrast,
+    saturation,
+    setSaturation,
+    tintColor,
+    setTintColor,
+    tintOpacity,
+    setTintOpacity,
+    invert,
+    setInvert,
+    hue,
+    setHue,
+    noise,
+    setNoise,
+    blur,
+    setBlur,
+    pixelate,
+    setPixelate,
+    resetFilters,
+
     reset,
   };
 

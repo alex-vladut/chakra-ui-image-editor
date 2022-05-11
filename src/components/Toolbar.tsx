@@ -5,6 +5,7 @@ import { Close } from "../icons";
 import { ToolbarAdjust } from "./ToolbarAdjust";
 
 import { ToolbarCrop } from "./ToolbarCrop";
+import { ToolbarFilters } from "./ToolbarFilters";
 
 const contentMap: { [name: string]: JSX.Element } = {
   // search: <ToolbarSearch />,
@@ -12,7 +13,7 @@ const contentMap: { [name: string]: JSX.Element } = {
   adjust: <ToolbarAdjust />,
   // drawing: <ToolbarDrawing />,
   // text: <ToolbarText />,
-  // effects: <ToolbarEffects />,
+  effects: <ToolbarFilters />,
 };
 
 const Toolbar: React.FC = () => {

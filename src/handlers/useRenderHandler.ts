@@ -17,6 +17,16 @@ export function useRenderHandler() {
     angle,
     flipX,
     flipY,
+    brightness,
+    contrast,
+    saturation,
+    tintColor,
+    tintOpacity,
+    invert,
+    hue,
+    noise,
+    blur,
+    pixelate,
   } = useCanvasContext();
 
   useEffect(() => {
@@ -40,9 +50,32 @@ export function useRenderHandler() {
 
     canvas.setWidth(width).setHeight(height);
     if (!angle) {
+      // TODO: not sure how to best handle it, maybe best to return the image width and height from the context
       image.scaleToWidth(width);
       image.scaleToHeight(height);
     }
+
+    image.filters?.push(
+      new fabric.Image.filters.Brightness({ brightness: brightness }),
+      new fabric.Image.filters.Contrast({ contrast }),
+      new fabric.Image.filters.Saturation({ saturation }),
+      new fabric.Image.filters.BlendColor({
+        color: tintColor,
+        mode: "tint",
+        alpha: tintOpacity * 0.22,
+      }),
+      new fabric.Image.filters.BlendColor({
+        color: "#fff",
+        mode: "exclusion",
+        alpha: invert,
+      }),
+      new (fabric.Image.filters as any).HueRotation({ rotation: hue }),
+      new fabric.Image.filters.Noise({ noise }),
+      new (fabric.Image.filters as any).Blur({ blur }),
+      new fabric.Image.filters.Pixelate({ blocksize: pixelate })
+    );
+    image.applyFilters();
+
     canvas.add(image);
     canvas.zoomToPoint(getCenter(canvas), actualZoomRatio);
 
@@ -89,6 +122,16 @@ export function useRenderHandler() {
     url,
     width,
     zoomRatio,
+    brightness,
+    contrast,
+    saturation,
+    tintColor,
+    tintOpacity,
+    invert,
+    hue,
+    noise,
+    blur,
+    pixelate,
   ]);
 }
 

@@ -31,13 +31,16 @@ const Menu: React.FC = () => {
     { icon: <Pencil />, name: "Draw", handler: () => {} },
     { icon: <Shapes />, name: "Shapes", handler: () => {} },
     { icon: <Text />, name: "Text", handler: () => {} },
-    { icon: <Filter />, name: "Filter", handler: () => {} },
+    { icon: <Filter />, name: "Filter",  handler: () => {
+      toggle("Effects");
+      setMode("effects");
+    }, },
   ];
   return (
     <section className="menu">
       <div className="menu__wrapper">
         {items.map((item, index) => (
-          <Tooltip key={index} label={item.name}>
+          <Tooltip key={index} label={item.name} placement="right">
             <div
               className={`menu__item ${
                 type === item.name ? "menu__item_active" : ""
