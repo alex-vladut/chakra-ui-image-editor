@@ -1,23 +1,36 @@
 import React from "react";
+import { useCanvasContext } from "../hooks/useCanvasContext";
 import { useToolbarContext } from "../hooks/useToolbarContext";
 import { Close } from "../icons";
+import { ToolbarAdjust } from "./ToolbarAdjust";
 
 import { ToolbarCrop } from "./ToolbarCrop";
 
+const contentMap: { [name: string]: JSX.Element } = {
+  // search: <ToolbarSearch />,
+  crop: <ToolbarCrop />,
+  adjust: <ToolbarAdjust />,
+  // drawing: <ToolbarDrawing />,
+  // text: <ToolbarText />,
+  // effects: <ToolbarEffects />,
+};
+
 const Toolbar: React.FC = () => {
+  const { mode, setMode } = useCanvasContext();
   const { isOpen, close } = useToolbarContext();
 
-  return isOpen ? (
+  return isOpen && mode ? (
     <section className={`toolbar custom-scrollbar`}>
       <div className="toolbar__header">
         <h4 className="toolbar__title">Crop</h4>
         <Close
           onClick={() => {
             close();
+            setMode(null);
           }}
         />
       </div>
-      <ToolbarCrop />
+      {contentMap[mode]}
     </section>
   ) : null;
 };

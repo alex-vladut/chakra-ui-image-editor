@@ -6,7 +6,18 @@ import { useCanvasContext } from "../hooks/useCanvasContext";
 const IMAGE_OBJECT_NAME = "image";
 
 export function useRenderHandler() {
-  const { canvas, containerElement, url, zoomRatio } = useCanvasContext();
+  const {
+    canvas,
+    containerElement,
+    width,
+    height,
+    url,
+    actualZoomRatio,
+    zoomRatio,
+    angle,
+    flipX,
+    flipY,
+  } = useCanvasContext();
 
   useEffect(() => {
     if (!canvas || !containerElement || !url) return;
@@ -26,28 +37,61 @@ export function useRenderHandler() {
       // flipY: this.canvas.flipY,
       name: IMAGE_OBJECT_NAME,
     });
-    const { width: originalWidth, height: originalHeight } =
-      image.getBoundingRect();
-
-    const containerHeight = containerElement.clientHeight;
-    const ratio = originalWidth / originalHeight;
-    let height = originalHeight * zoomRatio;
-    let width = originalWidth * zoomRatio;
-    if (height > containerHeight) {
-      height = containerHeight;
-      width = height * ratio;
-    }
 
     canvas.setWidth(width).setHeight(height);
-    image.scaleToWidth(width);
-    image.scaleToHeight(height);
-    image.center();
-    canvas.add(image);
-    if (originalHeight * zoomRatio > containerHeight) {
-      canvas.zoomToPoint(
-        new fabric.Point(canvas.getWidth() / 2, canvas.getHeight() / 2),
-        (originalHeight * zoomRatio) / containerHeight
-      );
+    if (!angle) {
+      image.scaleToWidth(width);
+      image.scaleToHeight(height);
     }
-  }, [canvas, containerElement, url, zoomRatio]);
+    canvas.add(image);
+    canvas.zoomToPoint(getCenter(canvas), actualZoomRatio);
+
+    if (flipX) {
+      canvas.forEachObject((obj) => {
+        if (!canvas.width) return;
+        let { width } = obj.getBoundingRect();
+        obj
+          .set({
+            // @ts-ignore
+            // angle: parseFloat((obj.angle || 0) * -1),
+            flipX: !obj.flipX,
+            left: canvas.width - width - (obj.left || 0),
+          })
+          .setCoords();
+      });
+    }
+    if (flipY) {
+      canvas.forEachObject((obj) => {
+        if (!canvas.height) return;
+        let { height } = obj.getBoundingRect();
+        obj
+          .set({
+            // @ts-ignore
+            // angle: parseFloat((obj.angle || 0) * -1),
+            flipY: !obj.flipY,
+            top: canvas.height - height - (obj.top || 0),
+          })
+          .setCoords();
+      });
+    }
+    if (angle) {
+      image.rotate(angle).setCoords();
+    }
+    image.center();
+  }, [
+    actualZoomRatio,
+    angle,
+    canvas,
+    containerElement,
+    flipX,
+    flipY,
+    height,
+    url,
+    width,
+    zoomRatio,
+  ]);
+}
+
+function getCenter(canvas: fabric.Canvas) {
+  return new fabric.Point(canvas.getWidth() / 2, canvas.getHeight() / 2);
 }

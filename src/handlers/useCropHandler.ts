@@ -1,6 +1,7 @@
 import { fabric } from "fabric";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useCanvasContext } from "../hooks/useCanvasContext";
+import { useToolbarContext } from "../hooks/useToolbarContext";
 import { useUploadImageHandler } from "./useUploadImageHandler";
 
 const CROP_OBJECT_NAME = "crop-zone";
@@ -42,7 +43,8 @@ export type Ratio = {
 export function useCropHandler() {
   const innerRectRef = useRef<fabric.Group | null>(null);
   const outerRectRef = useRef<fabric.Path | null>(null);
-  const { canvas, width, height } = useCanvasContext();
+  const { close: closeToolbar } = useToolbarContext();
+  const { canvas, width, height, reset } = useCanvasContext();
   // TODO: this could probably be turned into a single number instead of holding both width and height
   const [ratio, setRatio] = useState<Ratio | null>(null);
   const [cropInfo, setCropInfo] = useState<CropInfo | null>(null);
@@ -88,7 +90,9 @@ export function useCropHandler() {
     });
 
     upload(croppedImageUrl);
-  }, [canvas, close, cropInfo, upload]);
+    reset();
+    closeToolbar();
+  }, [canvas, close, cropInfo, reset, closeToolbar, upload]);
 
   const move = useCallback(
     (left: number, top: number) => {

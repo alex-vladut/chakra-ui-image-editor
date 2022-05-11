@@ -1,5 +1,5 @@
 import { Tooltip } from "@chakra-ui/react";
-import { useImageEditorContext } from "../hooks/useImageEditorContext";
+import { useCanvasContext } from "../hooks/useCanvasContext";
 import { useToolbarContext } from "../hooks/useToolbarContext";
 import { Crop } from "../icons";
 import { Flip } from "../icons";
@@ -9,7 +9,7 @@ import { Text } from "../icons";
 import { Filter } from "../icons";
 
 const Menu: React.FC = () => {
-  const { setMode } = useImageEditorContext();
+  const { setMode } = useCanvasContext();
   const { type, toggle } = useToolbarContext();
   const items = [
     {
@@ -23,7 +23,10 @@ const Menu: React.FC = () => {
     {
       icon: <Flip />,
       name: "Rotate",
-      handler: () => toggle("Rotate"),
+      handler: () => {
+        toggle("Rotate");
+        setMode("adjust");
+      },
     },
     { icon: <Pencil />, name: "Draw", handler: () => {} },
     { icon: <Shapes />, name: "Shapes", handler: () => {} },
