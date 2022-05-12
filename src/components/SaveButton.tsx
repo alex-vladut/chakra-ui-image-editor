@@ -2,19 +2,19 @@ import React from "react";
 import { Tooltip } from "@chakra-ui/react";
 
 import { Save } from "../icons";
-import { useImageEditorContext } from "../hooks/useImageEditorContext";
+import { useCanvasContext } from "../hooks/useCanvasContext";
 
 const SaveButton: React.FC = () => {
-  const { canvasRef } = useImageEditorContext();
+  const { canvas } = useCanvasContext();
 
   const saveImage = () => {
-    if (!canvasRef.current) return;
+    if (!canvas) return;
 
     const randomNum = Math.floor(Math.random() * 1000);
-    const fileName = `image-${randomNum}.png`;
+    const fileName = `image-${randomNum}.jpg`;
     const link = document.createElement("a");
     link.download = fileName;
-    link.href = canvasRef.current.toDataURL("image/png");
+    link.href = canvas.toDataURL({ format: "image/jpeg" });
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);

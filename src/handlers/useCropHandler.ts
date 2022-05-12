@@ -44,7 +44,7 @@ export function useCropHandler() {
   const innerRectRef = useRef<fabric.Group | null>(null);
   const outerRectRef = useRef<fabric.Path | null>(null);
   const { close: closeToolbar } = useToolbarContext();
-  const { canvas, width, height, reset } = useCanvasContext();
+  const { canvas, width, height, pushToHistory } = useCanvasContext();
   // TODO: this could probably be turned into a single number instead of holding both width and height
   const [ratio, setRatio] = useState<Ratio | null>(null);
   const [cropInfo, setCropInfo] = useState<CropInfo | null>(null);
@@ -90,9 +90,12 @@ export function useCropHandler() {
     });
 
     upload(croppedImageUrl);
-    reset();
+    pushToHistory({
+      type: "crop",
+      data: croppedImageUrl,
+    });
     closeToolbar();
-  }, [canvas, close, cropInfo, reset, closeToolbar, upload]);
+  }, [cropInfo, canvas, close, upload, pushToHistory, closeToolbar]);
 
   const move = useCallback(
     (left: number, top: number) => {

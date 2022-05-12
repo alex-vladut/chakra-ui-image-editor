@@ -8,6 +8,34 @@ import {
   useMemo,
 } from "react";
 import { fabric } from "fabric";
+import { equals } from "../helpers/objects";
+
+type ActionType = "crop" | "flip-x" | "flip-y" | "rotate" | "filters";
+
+type Action<T extends ActionType, D> = {
+  type: T;
+  data: D;
+};
+
+type Filters = {
+  brightness: number;
+  contrast: number;
+  saturation: number;
+  tintColor: string;
+  tintOpacity: number;
+  invert: number;
+  hue: number;
+  noise: number;
+  blur: number;
+  pixelate: number;
+};
+
+type HistoryAction =
+  | Action<"crop", string>
+  | Action<"flip-x", boolean>
+  | Action<"flip-y", boolean>
+  | Action<"rotate", number>
+  | Action<"filters", Filters>;
 
 export type Mode =
   | "search"
@@ -25,7 +53,6 @@ const ANGLE_STEP: number = 90;
 
 interface CanvasContext {
   mode: Mode | null;
-  setMode: (mode: Mode | null) => void;
   baseScale: number;
   setBaseScale: (baseScale: number) => void;
   actualZoomRatio: number;
@@ -78,6 +105,14 @@ interface CanvasContext {
   setPixelate: (pixelate: number) => void;
   resetFilters: () => void;
 
+  hasUndo: boolean;
+  hasRedo: boolean;
+  undo: () => void;
+  redo: () => void;
+  pushToHistory: (action: HistoryAction) => void;
+  startSession: (mode: Mode) => void;
+  stopSession: () => void;
+
   reset: () => void;
 }
 
@@ -99,7 +134,6 @@ export const CanvasContextProvider: FC<{ children: ReactNode }> = ({
   const [zoomRatio, setZoomRatio] = useState(SCALE_DEFAULT_VALUE);
 
   const [angle, setAngle] = useState(0);
-  const [angleDifference, setAngleDifference] = useState(0);
   const [flipX, setFlipX] = useState(false);
   const [flipY, setFlipY] = useState(false);
 
@@ -113,6 +147,172 @@ export const CanvasContextProvider: FC<{ children: ReactNode }> = ({
   const [noise, setNoise] = useState(0);
   const [blur, setBlur] = useState(0);
   const [pixelate, setPixelate] = useState(1);
+
+  const [history, setHistory] = useState<HistoryAction[]>([]);
+  const [historyIndex, setHistoryIndex] = useState<number>(-1);
+
+  const [previousAngle, setPreviousAngle] = useState<number | null>(null);
+  const [previousFilters, setPreviousFilters] = useState<Filters | null>(null);
+
+  const hasUndo = useMemo(
+    () => history.length > 0 && historyIndex > -1,
+    [history, historyIndex]
+  );
+
+  const hasRedo = useMemo(
+    () => history.length > 0 && historyIndex < history.length - 1,
+    [history, historyIndex]
+  );
+
+  const undo = useCallback(() => {
+    const newIndex = historyIndex - 1;
+    const state = compileState(history, newIndex, originalUrl);
+    setUrl(state.imageUrl);
+    setFlipX(state.flipX);
+    setFlipY(state.flipY);
+    setAngle(state.angle);
+    setBrightness(state.brightness);
+    setContrast(state.contrast);
+    setSaturation(state.saturation);
+    setTintColor(state.tintColor);
+    setTintOpacity(state.tintOpacity);
+    setInvert(state.invert);
+    setHue(state.hue);
+    setNoise(state.noise);
+    setBlur(state.blur);
+    setPixelate(state.pixelate);
+
+    setHistoryIndex(newIndex);
+  }, [history, historyIndex, originalUrl]);
+
+  const redo = useCallback(() => {
+    const newIndex = historyIndex + 1;
+    const state = compileState(history, newIndex, originalUrl);
+    setUrl(state.imageUrl);
+    setFlipX(state.flipX);
+    setFlipY(state.flipY);
+    setAngle(state.angle);
+    setBrightness(state.brightness);
+    setContrast(state.contrast);
+    setSaturation(state.saturation);
+    setTintColor(state.tintColor);
+    setTintOpacity(state.tintOpacity);
+    setInvert(state.invert);
+    setHue(state.hue);
+    setNoise(state.noise);
+    setBlur(state.blur);
+    setPixelate(state.pixelate);
+
+    setHistoryIndex(newIndex);
+  }, [history, historyIndex, originalUrl]);
+
+  const pushToHistory = useCallback(
+    (action: HistoryAction) => {
+      if (historyIndex === -1) {
+        setHistory([action]);
+      } else {
+        setHistory([...history.slice(0, historyIndex + 1), action]);
+      }
+      setHistoryIndex((previous) => previous + 1);
+    },
+    [history, historyIndex]
+  );
+
+  const stopSession = useCallback(() => {
+    if (mode === "adjust") {
+      if (previousAngle !== angle) {
+        pushToHistory({
+          type: "rotate",
+          data: angle,
+        });
+      }
+    } else if (mode === "effects") {
+      const filters = {
+        brightness,
+        contrast,
+        saturation,
+        tintColor,
+        tintOpacity,
+        invert,
+        hue,
+        noise,
+        blur,
+        pixelate,
+      };
+      if (!equals(previousFilters, filters)) {
+        pushToHistory({
+          type: "filters",
+          data: filters,
+        });
+      }
+    }
+
+    setPreviousAngle(null);
+    setPreviousFilters(null);
+    setMode(null);
+  }, [
+    angle,
+    blur,
+    brightness,
+    contrast,
+    hue,
+    invert,
+    mode,
+    noise,
+    pixelate,
+    previousAngle,
+    previousFilters,
+    pushToHistory,
+    saturation,
+    tintColor,
+    tintOpacity,
+  ]);
+
+  const startSession = useCallback(
+    (newMode: Mode) => {
+      if (mode) {
+        // stop previous session
+        stopSession();
+
+        if (newMode === mode) return;
+      }
+
+      // store the current values to be compared when the session ends
+      if (newMode === "adjust") {
+        setPreviousAngle(angle);
+      } else if (newMode === "effects") {
+        setPreviousFilters({
+          brightness,
+          contrast,
+          saturation,
+          tintColor,
+          tintOpacity,
+          invert,
+          hue,
+          noise,
+          blur,
+          pixelate,
+        });
+      }
+
+      setMode(newMode);
+    },
+    [
+      angle,
+      blur,
+      brightness,
+      contrast,
+      hue,
+      invert,
+      mode,
+      noise,
+      pixelate,
+      saturation,
+      stopSession,
+      tintColor,
+      tintOpacity,
+    ]
+  );
 
   const changeZoomRatio = useCallback((value: number) => {
     const roundedToStep =
@@ -168,37 +368,54 @@ export const CanvasContextProvider: FC<{ children: ReactNode }> = ({
     };
   }, [angle, containerElement, url, zoomRatio]);
 
-  const rotate = useCallback(
-    (value: number) => {
-      setAngleDifference(value - angle);
-      setAngle(value);
-    },
-    [angle]
-  );
+  const rotate = useCallback((value: number) => {
+    setAngle(value);
+  }, []);
 
   const rotateRight = useCallback(() => {
     let result = angle + ANGLE_STEP;
     if (result > 360) {
       result -= 360;
     }
+    setPreviousAngle(result);
+    pushToHistory({
+      type: "rotate",
+      data: result,
+    });
+
     rotate(result);
-  }, [angle, rotate]);
+  }, [angle, pushToHistory, rotate]);
 
   const rotateLeft = useCallback(() => {
     let result = angle - ANGLE_STEP;
     if (result < -360) {
       result += 360;
     }
+
+    setPreviousAngle(result);
+    pushToHistory({
+      type: "rotate",
+      data: result,
+    });
+
     rotate(result);
-  }, [angle, rotate]);
+  }, [angle, pushToHistory, rotate]);
 
   const toggleFlipX = useCallback(() => {
     setFlipX(!flipX);
-  }, [flipX]);
+    pushToHistory({
+      type: "flip-x",
+      data: !flipX,
+    });
+  }, [flipX, pushToHistory]);
 
   const toggleFlipY = useCallback(() => {
     setFlipY(!flipY);
-  }, [flipY]);
+    pushToHistory({
+      type: "flip-y",
+      data: !flipY,
+    });
+  }, [flipY, pushToHistory]);
 
   const resetFilters = useCallback(() => {
     setBrightness(0);
@@ -224,7 +441,6 @@ export const CanvasContextProvider: FC<{ children: ReactNode }> = ({
 
   const context = {
     mode,
-    setMode,
     originalUrl,
     setOriginalUrl,
     url,
@@ -277,6 +493,15 @@ export const CanvasContextProvider: FC<{ children: ReactNode }> = ({
     setPixelate,
     resetFilters,
 
+    hasUndo,
+    hasRedo,
+    undo,
+    redo,
+    pushToHistory,
+
+    startSession,
+    stopSession,
+
     reset,
   };
 
@@ -291,4 +516,69 @@ export function useCanvasContext() {
     );
   }
   return context;
+}
+
+type State = {
+  imageUrl: string | null;
+  baseScale: number;
+  zoomRatio: number;
+  angle: number;
+  flipX: boolean;
+  flipY: boolean;
+  brightness: number;
+  contrast: number;
+  saturation: number;
+  tintColor: string;
+  tintOpacity: number;
+  invert: number;
+  hue: number;
+  noise: number;
+  blur: number;
+  pixelate: number;
+};
+
+const INITIAL_STATE = {
+  baseScale: SCALE_DEFAULT_VALUE,
+  zoomRatio: SCALE_DEFAULT_VALUE,
+  angle: 0,
+  flipX: false,
+  flipY: false,
+  brightness: 0,
+  contrast: 0,
+  saturation: 0,
+  tintColor: "#000000",
+  tintOpacity: 0,
+  invert: 0,
+  hue: 0,
+  noise: 0,
+  blur: 0,
+  pixelate: 1,
+};
+
+function compileState(
+  history: HistoryAction[],
+  index: number,
+  originalImageUrl: string | null
+) {
+  let state = { ...INITIAL_STATE, imageUrl: originalImageUrl };
+  if (index === -1) return state;
+
+  return history.slice(0, index + 1).reduce(historyReducer, state);
+}
+
+function historyReducer(state: State, action: HistoryAction): State {
+  switch (action.type) {
+    case "crop":
+      return { ...INITIAL_STATE, imageUrl: action.data };
+    case "flip-x":
+      return { ...state, flipX: action.data };
+    case "flip-y":
+      return { ...state, flipY: action.data };
+    case "rotate":
+      return { ...state, angle: action.data };
+    case "filters":
+      return { ...state, ...action.data };
+    default:
+      return state;
+  }
 }

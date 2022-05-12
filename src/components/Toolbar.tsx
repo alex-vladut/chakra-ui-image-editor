@@ -17,17 +17,17 @@ const contentMap: { [name: string]: JSX.Element } = {
 };
 
 const Toolbar: React.FC = () => {
-  const { mode, setMode } = useCanvasContext();
+  const { mode, stopSession } = useCanvasContext();
   const { isOpen, close } = useToolbarContext();
 
   return isOpen && mode ? (
     <section className={`toolbar custom-scrollbar`}>
       <div className="toolbar__header">
-        <h4 className="toolbar__title">Crop</h4>
+        <h4 className="toolbar__title">{mode}</h4>
         <Close
           onClick={() => {
+            stopSession();
             close();
-            setMode(null);
           }}
         />
       </div>

@@ -1,13 +1,12 @@
-import { Tooltip } from "@chakra-ui/react";
 import React from "react";
 import { ColorModeSwitcher } from "../ColorModeSwitcher";
-import { Undo } from "../icons";
-import { Redo } from "../icons";
 
 import UploadButton from "./UploadButton";
 import SaveButton from "./SaveButton";
 import { useToolbarContext } from "../hooks/useToolbarContext";
 import ZoomControl from "./ZoomControl";
+import { UndoButton } from "./UndoButton";
+import { RedoButton } from "./RedoButton";
 
 const Header: React.FC = () => {
   const { isOpen } = useToolbarContext();
@@ -16,14 +15,10 @@ const Header: React.FC = () => {
       <div className="header__items">
         <div className="header__items-group">
           <div className="header__item">
-            <Tooltip label="Undo" placement="bottom">
-              <Undo />
-            </Tooltip>
+            <UndoButton />
           </div>
           <div className="header__item">
-            <Tooltip label="Redo" placement="bottom">
-              <Redo />
-            </Tooltip>
+            <RedoButton />
           </div>
         </div>
         <div className="header__items-group">

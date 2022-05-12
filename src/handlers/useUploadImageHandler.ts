@@ -5,10 +5,12 @@ import { useCanvasContext } from "../hooks/useCanvasContext";
 export function useUploadImageHandler() {
   const {
     containerElement,
+    originalUrl,
     setOriginalUrl,
     setUrl,
     setBaseScale,
     setZoomRatio,
+    reset,
   } = useCanvasContext();
 
   return useCallback(
@@ -24,14 +26,24 @@ export function useUploadImageHandler() {
 
         const baseScale = getBaseScale(containerElement, originalHeight);
 
-        setOriginalUrl(imageUrl);
+        if (!originalUrl) {
+          setOriginalUrl(imageUrl);
+        }
         setUrl(imageUrl);
-
+        reset();
         setBaseScale(baseScale);
         setZoomRatio(baseScale);
       });
     },
-    [containerElement, setBaseScale, setOriginalUrl, setUrl, setZoomRatio]
+    [
+      containerElement,
+      originalUrl,
+      reset,
+      setBaseScale,
+      setOriginalUrl,
+      setUrl,
+      setZoomRatio,
+    ]
   );
 }
 

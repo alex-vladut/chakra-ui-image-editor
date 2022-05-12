@@ -9,7 +9,7 @@ import { Text } from "../icons";
 import { Filter } from "../icons";
 
 const Menu: React.FC = () => {
-  const { setMode } = useCanvasContext();
+  const { startSession } = useCanvasContext();
   const { type, toggle } = useToolbarContext();
   const items = [
     {
@@ -17,7 +17,7 @@ const Menu: React.FC = () => {
       name: "Crop",
       handler: () => {
         toggle("Crop");
-        setMode("crop");
+        startSession("crop");
       },
     },
     {
@@ -25,16 +25,20 @@ const Menu: React.FC = () => {
       name: "Rotate",
       handler: () => {
         toggle("Rotate");
-        setMode("adjust");
+        startSession("adjust");
       },
     },
     { icon: <Pencil />, name: "Draw", handler: () => {} },
     { icon: <Shapes />, name: "Shapes", handler: () => {} },
     { icon: <Text />, name: "Text", handler: () => {} },
-    { icon: <Filter />, name: "Filter",  handler: () => {
-      toggle("Effects");
-      setMode("effects");
-    }, },
+    {
+      icon: <Filter />,
+      name: "Filter",
+      handler: () => {
+        toggle("Effects");
+        startSession("effects");
+      },
+    },
   ];
   return (
     <section className="menu">

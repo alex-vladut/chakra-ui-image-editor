@@ -5,7 +5,6 @@ import Header from "./components/Header";
 import Canvas from "./components/Canvas";
 import Toolbar from "./components/Toolbar";
 
-import { ImageEditorContextProvider } from "./hooks/useImageEditorContext";
 import { CanvasContextProvider } from "./hooks/useCanvasContext";
 import { ToolbarContextProvider } from "./hooks/useToolbarContext";
 import { CropperContextProvider } from "./hooks/useCropperContext";
@@ -25,13 +24,11 @@ export function App() {
   return (
     <ChakraProvider theme={theme}>
       <CanvasContextProvider>
-        <ImageEditorContextProvider>
-          <ToolbarContextProvider>
-            <CropperContextProvider>
-              <Content />
-            </CropperContextProvider>
-          </ToolbarContextProvider>
-        </ImageEditorContextProvider>
+        <ToolbarContextProvider>
+          <CropperContextProvider>
+            <Content />
+          </CropperContextProvider>
+        </ToolbarContextProvider>
       </CanvasContextProvider>
     </ChakraProvider>
   );
