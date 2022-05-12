@@ -3,15 +3,15 @@ import { ColorModeSwitcher } from "../ColorModeSwitcher";
 
 import UploadButton from "./UploadButton";
 import SaveButton from "./SaveButton";
-import { useToolbarContext } from "../hooks/useToolbarContext";
 import ZoomControl from "./ZoomControl";
 import { UndoButton } from "./UndoButton";
 import { RedoButton } from "./RedoButton";
+import { useCanvasContext } from "../hooks/useCanvasContext";
 
 const Header: React.FC = () => {
-  const { isOpen } = useToolbarContext();
+  const { mode } = useCanvasContext();
   return (
-    <header className={`header ${isOpen ? "header_toolbar-open" : ""}`}>
+    <header className={`header ${mode ? "header_toolbar-open" : ""}`}>
       <div className="header__items">
         <div className="header__items-group">
           <div className="header__item">

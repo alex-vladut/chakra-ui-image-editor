@@ -1,6 +1,6 @@
 import { Tooltip } from "@chakra-ui/react";
-import { useCanvasContext } from "../hooks/useCanvasContext";
-import { useToolbarContext } from "../hooks/useToolbarContext";
+import { ReactNode } from "react";
+import { Mode, useCanvasContext } from "../hooks/useCanvasContext";
 import { Crop } from "../icons";
 import { Flip } from "../icons";
 import { Pencil } from "../icons";
@@ -9,35 +9,23 @@ import { Text } from "../icons";
 import { Filter } from "../icons";
 
 const Menu: React.FC = () => {
-  const { startSession } = useCanvasContext();
-  const { type, toggle } = useToolbarContext();
-  const items = [
+  const { mode, startSession } = useCanvasContext();
+
+  const items: { icon: ReactNode; name: Mode }[] = [
     {
       icon: <Crop />,
-      name: "Crop",
-      handler: () => {
-        toggle("Crop");
-        startSession("crop");
-      },
+      name: "crop",
     },
     {
       icon: <Flip />,
-      name: "Rotate",
-      handler: () => {
-        toggle("Rotate");
-        startSession("adjust");
-      },
+      name: "adjust",
     },
-    { icon: <Pencil />, name: "Draw", handler: () => {} },
-    { icon: <Shapes />, name: "Shapes", handler: () => {} },
-    { icon: <Text />, name: "Text", handler: () => {} },
+    { icon: <Pencil />, name: "drawing" },
+    { icon: <Shapes />, name: "shapes" },
+    { icon: <Text />, name: "text" },
     {
       icon: <Filter />,
-      name: "Filter",
-      handler: () => {
-        toggle("Effects");
-        startSession("effects");
-      },
+      name: "filters",
     },
   ];
   return (
@@ -47,9 +35,9 @@ const Menu: React.FC = () => {
           <Tooltip key={index} label={item.name} placement="right">
             <div
               className={`menu__item ${
-                type === item.name ? "menu__item_active" : ""
+                mode === item.name ? "menu__item_active" : ""
               }`}
-              onClick={item.handler}
+              onClick={() => startSession(item.name)}
             >
               {item.icon}
             </div>

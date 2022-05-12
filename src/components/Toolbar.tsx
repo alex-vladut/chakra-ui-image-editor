@@ -1,6 +1,5 @@
 import React from "react";
 import { useCanvasContext } from "../hooks/useCanvasContext";
-import { useToolbarContext } from "../hooks/useToolbarContext";
 import { Close } from "../icons";
 import { ToolbarAdjust } from "./ToolbarAdjust";
 
@@ -13,23 +12,17 @@ const contentMap: { [name: string]: JSX.Element } = {
   adjust: <ToolbarAdjust />,
   // drawing: <ToolbarDrawing />,
   // text: <ToolbarText />,
-  effects: <ToolbarFilters />,
+  filters: <ToolbarFilters />,
 };
 
 const Toolbar: React.FC = () => {
   const { mode, stopSession } = useCanvasContext();
-  const { isOpen, close } = useToolbarContext();
 
-  return isOpen && mode ? (
+  return mode ? (
     <section className={`toolbar custom-scrollbar`}>
       <div className="toolbar__header">
         <h4 className="toolbar__title">{mode}</h4>
-        <Close
-          onClick={() => {
-            stopSession();
-            close();
-          }}
-        />
+        <Close onClick={stopSession} />
       </div>
       {contentMap[mode]}
     </section>

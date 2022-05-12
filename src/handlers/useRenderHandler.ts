@@ -17,16 +17,7 @@ export function useRenderHandler() {
     angle,
     flipX,
     flipY,
-    brightness,
-    contrast,
-    saturation,
-    tintColor,
-    tintOpacity,
-    invert,
-    hue,
-    noise,
-    blur,
-    pixelate,
+    filters,
   } = useCanvasContext();
 
   useEffect(() => {
@@ -55,8 +46,22 @@ export function useRenderHandler() {
       image.scaleToHeight(height);
     }
 
+    const {
+      brightness,
+      contrast,
+      saturation,
+      tintColor,
+      tintOpacity,
+      invert,
+      hue,
+      noise,
+      blur,
+      pixelate,
+      sharpen,
+    } = filters;
+
     image.filters?.push(
-      new fabric.Image.filters.Brightness({ brightness: brightness }),
+      new fabric.Image.filters.Brightness({ brightness }),
       new fabric.Image.filters.Contrast({ contrast }),
       new fabric.Image.filters.Saturation({ saturation }),
       new fabric.Image.filters.BlendColor({
@@ -74,6 +79,13 @@ export function useRenderHandler() {
       new (fabric.Image.filters as any).Blur({ blur }),
       new fabric.Image.filters.Pixelate({ blocksize: pixelate })
     );
+    if (sharpen) {
+      image.filters?.push(
+        new fabric.Image.filters.Convolute({
+          matrix: [0, -1, 0, -1, 5, -1, 0, -1, 0],
+        })
+      );
+    }
     image.applyFilters();
 
     canvas.add(image);
@@ -122,16 +134,7 @@ export function useRenderHandler() {
     url,
     width,
     zoomRatio,
-    brightness,
-    contrast,
-    saturation,
-    tintColor,
-    tintOpacity,
-    invert,
-    hue,
-    noise,
-    blur,
-    pixelate,
+    filters,
   ]);
 }
 

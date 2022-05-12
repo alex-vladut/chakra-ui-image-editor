@@ -28,6 +28,7 @@ type Filters = {
   noise: number;
   blur: number;
   pixelate: number;
+  sharpen: boolean;
 };
 
 type HistoryAction =
@@ -42,14 +43,36 @@ export type Mode =
   | "crop"
   | "adjust"
   | "drawing"
+  | "shapes"
   | "text"
-  | "effects";
+  | "filters";
 
 const SCALE_STEP: number = 0.1;
 const SCALE_MAX_VALUE: number = 3;
 const SCALE_MIN_VALUE: number = 0.5;
 const SCALE_DEFAULT_VALUE: number = 1;
 const ANGLE_STEP: number = 90;
+
+const INITIAL_STATE = {
+  baseScale: SCALE_DEFAULT_VALUE,
+  zoomRatio: SCALE_DEFAULT_VALUE,
+  angle: 0,
+  flipX: false,
+  flipY: false,
+  filters: {
+    brightness: 0,
+    contrast: 0,
+    saturation: 0,
+    tintColor: "#000000",
+    tintOpacity: 0,
+    invert: 0,
+    hue: 0,
+    noise: 0,
+    blur: 0,
+    pixelate: 1,
+    sharpen: false,
+  },
+};
 
 interface CanvasContext {
   mode: Mode | null;
@@ -83,26 +106,11 @@ interface CanvasContext {
   flipY: boolean;
   toggleFlipY: () => void;
 
-  brightness: number;
-  setBrightness: (brightness: number) => void;
-  contrast: number;
-  setContrast: (contrast: number) => void;
-  saturation: number;
-  setSaturation: (saturation: number) => void;
-  tintColor: string;
-  setTintColor: (tintColor: string) => void;
-  tintOpacity: number;
-  setTintOpacity: (tintOpacity: number) => void;
-  invert: number;
-  setInvert: (invert: number) => void;
-  hue: number;
-  setHue: (hue: number) => void;
-  noise: number;
-  setNoise: (noise: number) => void;
-  blur: number;
-  setBlur: (blur: number) => void;
-  pixelate: number;
-  setPixelate: (pixelate: number) => void;
+  filters: Filters;
+  setFilterProperty<K extends keyof Filters, V extends Filters[K]>(
+    key: K,
+    value: V
+  ): void;
   resetFilters: () => void;
 
   hasUndo: boolean;
@@ -137,16 +145,7 @@ export const CanvasContextProvider: FC<{ children: ReactNode }> = ({
   const [flipX, setFlipX] = useState(false);
   const [flipY, setFlipY] = useState(false);
 
-  const [brightness, setBrightness] = useState(0);
-  const [contrast, setContrast] = useState(0);
-  const [saturation, setSaturation] = useState(0);
-  const [tintColor, setTintColor] = useState("#000000");
-  const [tintOpacity, setTintOpacity] = useState(0);
-  const [invert, setInvert] = useState(0);
-  const [hue, setHue] = useState(0);
-  const [noise, setNoise] = useState(0);
-  const [blur, setBlur] = useState(0);
-  const [pixelate, setPixelate] = useState(1);
+  const [filters, setFilters] = useState<Filters>(INITIAL_STATE.filters);
 
   const [history, setHistory] = useState<HistoryAction[]>([]);
   const [historyIndex, setHistoryIndex] = useState<number>(-1);
@@ -171,16 +170,7 @@ export const CanvasContextProvider: FC<{ children: ReactNode }> = ({
     setFlipX(state.flipX);
     setFlipY(state.flipY);
     setAngle(state.angle);
-    setBrightness(state.brightness);
-    setContrast(state.contrast);
-    setSaturation(state.saturation);
-    setTintColor(state.tintColor);
-    setTintOpacity(state.tintOpacity);
-    setInvert(state.invert);
-    setHue(state.hue);
-    setNoise(state.noise);
-    setBlur(state.blur);
-    setPixelate(state.pixelate);
+    setFilters(state.filters);
 
     setHistoryIndex(newIndex);
   }, [history, historyIndex, originalUrl]);
@@ -192,16 +182,7 @@ export const CanvasContextProvider: FC<{ children: ReactNode }> = ({
     setFlipX(state.flipX);
     setFlipY(state.flipY);
     setAngle(state.angle);
-    setBrightness(state.brightness);
-    setContrast(state.contrast);
-    setSaturation(state.saturation);
-    setTintColor(state.tintColor);
-    setTintOpacity(state.tintOpacity);
-    setInvert(state.invert);
-    setHue(state.hue);
-    setNoise(state.noise);
-    setBlur(state.blur);
-    setPixelate(state.pixelate);
+    setFilters(state.filters);
 
     setHistoryIndex(newIndex);
   }, [history, historyIndex, originalUrl]);
@@ -226,19 +207,7 @@ export const CanvasContextProvider: FC<{ children: ReactNode }> = ({
           data: angle,
         });
       }
-    } else if (mode === "effects") {
-      const filters = {
-        brightness,
-        contrast,
-        saturation,
-        tintColor,
-        tintOpacity,
-        invert,
-        hue,
-        noise,
-        blur,
-        pixelate,
-      };
+    } else if (mode === "filters") {
       if (!equals(previousFilters, filters)) {
         pushToHistory({
           type: "filters",
@@ -250,23 +219,7 @@ export const CanvasContextProvider: FC<{ children: ReactNode }> = ({
     setPreviousAngle(null);
     setPreviousFilters(null);
     setMode(null);
-  }, [
-    angle,
-    blur,
-    brightness,
-    contrast,
-    hue,
-    invert,
-    mode,
-    noise,
-    pixelate,
-    previousAngle,
-    previousFilters,
-    pushToHistory,
-    saturation,
-    tintColor,
-    tintOpacity,
-  ]);
+  }, [angle, filters, mode, previousAngle, previousFilters, pushToHistory]);
 
   const startSession = useCallback(
     (newMode: Mode) => {
@@ -280,38 +233,13 @@ export const CanvasContextProvider: FC<{ children: ReactNode }> = ({
       // store the current values to be compared when the session ends
       if (newMode === "adjust") {
         setPreviousAngle(angle);
-      } else if (newMode === "effects") {
-        setPreviousFilters({
-          brightness,
-          contrast,
-          saturation,
-          tintColor,
-          tintOpacity,
-          invert,
-          hue,
-          noise,
-          blur,
-          pixelate,
-        });
+      } else if (newMode === "filters") {
+        setPreviousFilters(filters);
       }
 
       setMode(newMode);
     },
-    [
-      angle,
-      blur,
-      brightness,
-      contrast,
-      hue,
-      invert,
-      mode,
-      noise,
-      pixelate,
-      saturation,
-      stopSession,
-      tintColor,
-      tintOpacity,
-    ]
+    [angle, filters, mode, stopSession]
   );
 
   const changeZoomRatio = useCallback((value: number) => {
@@ -418,16 +346,7 @@ export const CanvasContextProvider: FC<{ children: ReactNode }> = ({
   }, [flipY, pushToHistory]);
 
   const resetFilters = useCallback(() => {
-    setBrightness(0);
-    setContrast(0);
-    setSaturation(0);
-    setTintColor("#000000");
-    setTintOpacity(0);
-    setInvert(0);
-    setHue(0);
-    setNoise(0);
-    setBlur(0);
-    setPixelate(1);
+    setFilters(INITIAL_STATE.filters);
   }, []);
 
   const reset = useCallback(() => {
@@ -471,26 +390,8 @@ export const CanvasContextProvider: FC<{ children: ReactNode }> = ({
     flipY,
     toggleFlipY,
 
-    brightness,
-    setBrightness,
-    contrast,
-    setContrast,
-    saturation,
-    setSaturation,
-    tintColor,
-    setTintColor,
-    tintOpacity,
-    setTintOpacity,
-    invert,
-    setInvert,
-    hue,
-    setHue,
-    noise,
-    setNoise,
-    blur,
-    setBlur,
-    pixelate,
-    setPixelate,
+    filters,
+    setFilterProperty,
     resetFilters,
 
     hasUndo,
@@ -504,6 +405,13 @@ export const CanvasContextProvider: FC<{ children: ReactNode }> = ({
 
     reset,
   };
+
+  function setFilterProperty<K extends keyof Filters, V extends Filters[K]>(
+    key: K,
+    value: V
+  ) {
+    setFilters((previous) => ({ ...previous, [key]: value }));
+  }
 
   return <Context.Provider value={context}>{children}</Context.Provider>;
 };
@@ -520,39 +428,10 @@ export function useCanvasContext() {
 
 type State = {
   imageUrl: string | null;
-  baseScale: number;
-  zoomRatio: number;
   angle: number;
   flipX: boolean;
   flipY: boolean;
-  brightness: number;
-  contrast: number;
-  saturation: number;
-  tintColor: string;
-  tintOpacity: number;
-  invert: number;
-  hue: number;
-  noise: number;
-  blur: number;
-  pixelate: number;
-};
-
-const INITIAL_STATE = {
-  baseScale: SCALE_DEFAULT_VALUE,
-  zoomRatio: SCALE_DEFAULT_VALUE,
-  angle: 0,
-  flipX: false,
-  flipY: false,
-  brightness: 0,
-  contrast: 0,
-  saturation: 0,
-  tintColor: "#000000",
-  tintOpacity: 0,
-  invert: 0,
-  hue: 0,
-  noise: 0,
-  blur: 0,
-  pixelate: 1,
+  filters: Filters;
 };
 
 function compileState(
@@ -577,7 +456,7 @@ function historyReducer(state: State, action: HistoryAction): State {
     case "rotate":
       return { ...state, angle: action.data };
     case "filters":
-      return { ...state, ...action.data };
+      return { ...state, filters: action.data };
     default:
       return state;
   }

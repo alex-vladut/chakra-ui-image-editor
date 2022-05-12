@@ -10,7 +10,7 @@ const UploadButton = () => {
 
   const uploadImage = (event: ChangeEvent<HTMLInputElement>) => {
     const target = event.target as HTMLInputElement;
-    const file: File = (target.files as FileList)[0];
+    const file: File = (target.files as FileList)?.[0];
 
     if (!file) {
       return;
@@ -40,7 +40,7 @@ const UploadButton = () => {
         type="file"
         className="header__upload-image-input"
         onChange={uploadImage}
-        accept="image/jpeg"
+        accept="image/*"
         hidden
       />
     </>

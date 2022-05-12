@@ -3,49 +3,44 @@ import {
   SliderFilledTrack,
   SliderThumb,
   SliderTrack,
+  Switch,
 } from "@chakra-ui/react";
 import { hexToRgb } from "../helpers/colorConverter";
 import { useCanvasContext } from "../hooks/useCanvasContext";
 import { ColorPicker } from "./ColorPicker";
 
 export const ToolbarFilters = () => {
-  const {
-    brightness,
-    setBrightness,
-    contrast,
-    setContrast,
-    saturation,
-    setSaturation,
-    hue,
-    setHue,
-    pixelate,
-    setPixelate,
-    noise,
-    setNoise,
-    invert,
-    setInvert,
-    blur,
-    setBlur,
-    tintOpacity,
-    setTintOpacity,
-    tintColor,
-    setTintColor,
-    resetFilters,
-  } = useCanvasContext();
+  const { filters, setFilterProperty, resetFilters } = useCanvasContext();
   return (
     <div className="toolbar__content">
       <div className="toolbar__block">
         <div className="slider__header">
+          <p className="slider__title">Sharpen</p>
+          <span className="slider__input">
+            <Switch
+              isChecked={filters.sharpen}
+              onChange={() => {
+                setFilterProperty("sharpen", !filters.sharpen);
+              }}
+            />
+          </span>
+        </div>
+      </div>
+
+      <div className="toolbar__block">
+        <div className="slider__header">
           <p className="slider__title">Brightness</p>
-          <span className="slider__input">{Math.round(brightness * 250)}</span>
+          <span className="slider__input">
+            {Math.round(filters.brightness * 250)}
+          </span>
         </div>
         <Slider
           title="Brightness"
-          value={Math.round(brightness * 250)}
+          value={Math.round(filters.brightness * 250)}
           min={-100}
           max={100}
           onChange={(value) => {
-            setBrightness(value / 250);
+            setFilterProperty("brightness", value / 250);
           }}
         >
           <SliderTrack>
@@ -58,15 +53,17 @@ export const ToolbarFilters = () => {
       <div className="toolbar__block">
         <div className="slider__header">
           <p className="slider__title">Contrast</p>
-          <span className="slider__input">{Math.round(contrast * 250)}</span>
+          <span className="slider__input">
+            {Math.round(filters.contrast * 250)}
+          </span>
         </div>
         <Slider
           title="Contrast"
-          value={Math.round(contrast * 250)}
+          value={Math.round(filters.contrast * 250)}
           min={-100}
           max={100}
           onChange={(value) => {
-            setContrast(value / 250);
+            setFilterProperty("contrast", value / 250);
           }}
         >
           <SliderTrack>
@@ -79,15 +76,17 @@ export const ToolbarFilters = () => {
       <div className="toolbar__block">
         <div className="slider__header">
           <p className="slider__title">Saturation</p>
-          <span className="slider__input">{Math.round(saturation * 100)}</span>
+          <span className="slider__input">
+            {Math.round(filters.saturation * 100)}
+          </span>
         </div>
         <Slider
           title="Saturation"
-          value={Math.round(saturation * 100)}
+          value={Math.round(filters.saturation * 100)}
           min={-100}
           max={100}
           onChange={(value) => {
-            setSaturation(value / 100);
+            setFilterProperty("saturation", value / 100);
           }}
         >
           <SliderTrack>
@@ -100,15 +99,15 @@ export const ToolbarFilters = () => {
       <div className="toolbar__block">
         <div className="slider__header">
           <p className="slider__title">Hue</p>
-          <span className="slider__input">{Math.round(hue * 100)}</span>
+          <span className="slider__input">{Math.round(filters.hue * 100)}</span>
         </div>
         <Slider
           title="Hue"
-          value={Math.round(hue * 100)}
+          value={Math.round(filters.hue * 100)}
           min={-100}
           max={100}
           onChange={(value) => {
-            setHue(value / 100);
+            setFilterProperty("hue", value / 100);
           }}
         >
           <SliderTrack>
@@ -121,14 +120,16 @@ export const ToolbarFilters = () => {
       <div className="toolbar__block">
         <div className="slider__header">
           <p className="slider__title">Pixelate</p>
-          <span className="slider__input">{pixelate}</span>
+          <span className="slider__input">{filters.pixelate}</span>
         </div>
         <Slider
           title="Pixelate"
-          value={pixelate}
+          value={filters.pixelate}
           min={1}
           max={100}
-          onChange={setPixelate}
+          onChange={(value) => {
+            setFilterProperty("pixelate", value);
+          }}
         >
           <SliderTrack>
             <SliderFilledTrack />
@@ -140,14 +141,16 @@ export const ToolbarFilters = () => {
       <div className="toolbar__block">
         <div className="slider__header">
           <p className="slider__title">Noise</p>
-          <span className="slider__input">{noise}</span>
+          <span className="slider__input">{filters.noise}</span>
         </div>
         <Slider
           title="Noise"
-          value={noise}
+          value={filters.noise}
           min={0}
           max={100}
-          onChange={setNoise}
+          onChange={(value) => {
+            setFilterProperty("noise", value);
+          }}
         >
           <SliderTrack>
             <SliderFilledTrack />
@@ -159,15 +162,17 @@ export const ToolbarFilters = () => {
       <div className="toolbar__block">
         <div className="slider__header">
           <p className="slider__title">Invert</p>
-          <span className="slider__input">{Math.round(invert * 100)}</span>
+          <span className="slider__input">
+            {Math.round(filters.invert * 100)}
+          </span>
         </div>
         <Slider
           title="Invert"
-          value={Math.round(invert * 100)}
+          value={Math.round(filters.invert * 100)}
           min={0}
           max={100}
           onChange={(value) => {
-            setInvert(value / 100);
+            setFilterProperty("invert", value / 100);
           }}
         >
           <SliderTrack>
@@ -180,15 +185,17 @@ export const ToolbarFilters = () => {
       <div className="toolbar__block">
         <div className="slider__header">
           <p className="slider__title">Blur</p>
-          <span className="slider__input">{Math.round(blur * 100)}</span>
+          <span className="slider__input">
+            {Math.round(filters.blur * 100)}
+          </span>
         </div>
         <Slider
           title="Blur"
-          value={Math.round(blur * 100)}
+          value={Math.round(filters.blur * 100)}
           min={0}
           max={100}
           onChange={(value) => {
-            setBlur(value / 100);
+            setFilterProperty("blur", value / 100);
           }}
         >
           <SliderTrack>
@@ -201,15 +208,17 @@ export const ToolbarFilters = () => {
       <div className="toolbar__block">
         <div className="slider__header">
           <p className="slider__title">Tint</p>
-          <span className="slider__input">{Math.round(tintOpacity * 100)}</span>
+          <span className="slider__input">
+            {Math.round(filters.tintOpacity * 100)}
+          </span>
         </div>
         <Slider
           title="Tint"
-          value={Math.round(tintOpacity * 100)}
+          value={Math.round(filters.tintOpacity * 100)}
           min={0}
           max={100}
           onChange={(value) => {
-            setTintOpacity(value / 100);
+            setFilterProperty("tintOpacity", value / 100);
           }}
         >
           <SliderTrack>
@@ -220,10 +229,10 @@ export const ToolbarFilters = () => {
       </div>
 
       <ColorPicker
-        currentColorCode={hexToRgb(tintColor)}
+        currentColorCode={hexToRgb(filters.tintColor)}
         callback={(hex) => {
-          setTintColor(hex);
-          setTintOpacity(1);
+          setFilterProperty("tintColor", hex);
+          setFilterProperty("tintOpacity", 1);
         }}
         output="hex"
       />

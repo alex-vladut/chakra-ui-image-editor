@@ -1,5 +1,6 @@
 import { fabric } from "fabric";
 import { useCallback } from "react";
+
 import { useCanvasContext } from "../hooks/useCanvasContext";
 
 export function useUploadImageHandler() {

@@ -6,7 +6,6 @@ import Canvas from "./components/Canvas";
 import Toolbar from "./components/Toolbar";
 
 import { CanvasContextProvider } from "./hooks/useCanvasContext";
-import { ToolbarContextProvider } from "./hooks/useToolbarContext";
 import { CropperContextProvider } from "./hooks/useCropperContext";
 
 export const Content = () => {
@@ -24,11 +23,9 @@ export function App() {
   return (
     <ChakraProvider theme={theme}>
       <CanvasContextProvider>
-        <ToolbarContextProvider>
-          <CropperContextProvider>
-            <Content />
-          </CropperContextProvider>
-        </ToolbarContextProvider>
+        <CropperContextProvider>
+          <Content />
+        </CropperContextProvider>
       </CanvasContextProvider>
     </ChakraProvider>
   );
