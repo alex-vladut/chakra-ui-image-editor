@@ -1,6 +1,6 @@
 import React from "react";
-import { useCanvasContext } from "../hooks/useCanvasContext";
-import { Close } from "../icons";
+import { useCanvasContext } from "../../hooks/useCanvasContext";
+import { Close } from "../../icons";
 import { ToolbarAdjust } from "./ToolbarAdjust";
 
 import { ToolbarCrop } from "./ToolbarCrop";

@@ -1,8 +1,8 @@
 import { useRef, ChangeEvent } from "react";
 import { Tooltip } from "@chakra-ui/react";
 
-import { Upload } from "../icons";
-import { useUploadImageHandler } from "../handlers/useUploadImageHandler";
+import { Upload } from "../../icons";
+import { useUploadImageHandler } from "../../handlers/useUploadImageHandler";
 
 const UploadButton = () => {
   const inputFileRef = useRef<HTMLInputElement>(null);

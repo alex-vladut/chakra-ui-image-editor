@@ -6,12 +6,12 @@ import {
   SliderTrack,
 } from "@chakra-ui/react";
 import React from "react";
-import { useCanvasContext } from "../hooks/useCanvasContext";
+import { useCanvasContext } from "../../hooks/useCanvasContext";
 
-import { Left } from "../icons";
-import { Right } from "../icons";
-import { FlipX } from "../icons";
-import { FlipY } from "../icons";
+import { Left } from "../../icons";
+import { Right } from "../../icons";
+import { FlipX } from "../../icons";
+import { FlipY } from "../../icons";
 
 export const ToolbarAdjust: React.FC = () => {
   const {

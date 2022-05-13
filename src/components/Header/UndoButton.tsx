@@ -1,7 +1,7 @@
 import { Tooltip } from "@chakra-ui/react";
 
-import { Undo } from "../icons";
-import { useCanvasContext } from "../hooks/useCanvasContext";
+import { Undo } from "../../icons";
+import { useCanvasContext } from "../../hooks/useCanvasContext";
 
 export const UndoButton = () => {
   const { hasUndo, undo } = useCanvasContext();

@@ -1,8 +1,8 @@
 import React from "react";
 import { Tooltip } from "@chakra-ui/react";
 
-import { Save } from "../icons";
-import { useCanvasContext } from "../hooks/useCanvasContext";
+import { Save } from "../../icons";
+import { useCanvasContext } from "../../hooks/useCanvasContext";
 
 const SaveButton: React.FC = () => {
   const { canvas } = useCanvasContext();

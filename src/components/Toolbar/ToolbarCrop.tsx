@@ -1,6 +1,6 @@
 import { ChangeEvent, useEffect, useState } from "react";
-import { useCropHandler } from "../handlers/useCropHandler";
-import { useCanvasContext } from "../hooks/useCanvasContext";
+import { useCropHandler } from "../../handlers/useCropHandler";
+import { useCanvasContext } from "../../hooks/useCanvasContext";
 
 const aspectRatioList = [
   { name: "custom", value: null },

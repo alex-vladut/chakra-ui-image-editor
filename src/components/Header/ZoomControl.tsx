@@ -1,8 +1,8 @@
 import { Tooltip } from "@chakra-ui/react";
 import React from "react";
 
-import { Minus, Plus } from "../icons";
-import { useCanvasContext } from "../hooks/useCanvasContext";
+import { Minus, Plus } from "../../icons";
+import { useCanvasContext } from "../../hooks/useCanvasContext";
 
 const ZoomControl: React.FC = () => {
   const { zoomRatio, zoomIn, zoomOut } = useCanvasContext();

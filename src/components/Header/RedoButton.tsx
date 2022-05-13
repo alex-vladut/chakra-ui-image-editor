@@ -1,7 +1,7 @@
 import { Tooltip } from "@chakra-ui/react";
 
-import { Redo } from "../icons";
-import { useCanvasContext } from "../hooks/useCanvasContext";
+import { Redo } from "../../icons";
+import { useCanvasContext } from "../../hooks/useCanvasContext";
 
 export const RedoButton = () => {
   const { hasRedo, redo } = useCanvasContext();

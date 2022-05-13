@@ -1,12 +1,12 @@
 import React from "react";
-import { ColorModeSwitcher } from "../ColorModeSwitcher";
+import { ColorModeSwitcher } from "./ColorModeSwitcher";
 
 import UploadButton from "./UploadButton";
 import SaveButton from "./SaveButton";
 import ZoomControl from "./ZoomControl";
 import { UndoButton } from "./UndoButton";
 import { RedoButton } from "./RedoButton";
-import { useCanvasContext } from "../hooks/useCanvasContext";
+import { useCanvasContext } from "../../hooks/useCanvasContext";
 
 const Header: React.FC = () => {
   const { mode } = useCanvasContext();
@@ -34,7 +34,7 @@ const Header: React.FC = () => {
             <SaveButton />
           </div>
           <div className="header__item">
-            <ColorModeSwitcher justifySelf="flex-end" />
+            <ColorModeSwitcher />
           </div>
         </div>
       </div>

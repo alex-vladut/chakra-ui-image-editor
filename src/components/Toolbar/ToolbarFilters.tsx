@@ -5,9 +5,9 @@ import {
   SliderTrack,
   Switch,
 } from "@chakra-ui/react";
-import { hexToRgb } from "../helpers/colorConverter";
-import { useCanvasContext } from "../hooks/useCanvasContext";
-import { ColorPicker } from "./ColorPicker";
+import { hexToRgb } from "../../helpers/colorConverter";
+import { useCanvasContext } from "../../hooks/useCanvasContext";
+import { ColorPicker } from "../ColorPicker";
 
 export const ToolbarFilters = () => {
   const { filters, setFilterProperty, resetFilters } = useCanvasContext();
