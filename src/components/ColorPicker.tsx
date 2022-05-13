@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { FormControl, FormLabel, SimpleGrid } from "@chakra-ui/react";
+
 import { hexToRgb, rgbToHex } from "../helpers/colorConverter";
 
 type Props = {
@@ -43,11 +45,15 @@ export const ColorPicker: React.FC<Props> = (props) => {
   };
 
   return (
-    <div className="toolbar__block">
-      {title && <p className="toolbar__block-title">{title}</p>}
-      <div className="colors__grid">
+    <FormControl>
+      <FormLabel htmlFor="color">{title}</FormLabel>
+      <SimpleGrid
+        id="color"
+        gridTemplateColumns="repeat(6, 1fr)"
+        gridTemplateRows="repeat(2, 2.5vw)"
+      >
         {rgbCodes.map((rgbCode, index) => {
-          const [r, g, b] = rgbCode.split(",").map((item) => Number(item));
+          const [r, g, b] = rgbCode.split(",").map(Number);
           const hexColorCode = rgbToHex(r, g, b);
           return (
             <input
@@ -64,7 +70,7 @@ export const ColorPicker: React.FC<Props> = (props) => {
             />
           );
         })}
-      </div>
-    </div>
+      </SimpleGrid>
+    </FormControl>
   );
 };

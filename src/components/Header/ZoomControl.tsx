@@ -1,27 +1,32 @@
-import { Tooltip } from "@chakra-ui/react";
 import React from "react";
+import { HStack, Text } from "@chakra-ui/react";
 
 import { Minus, Plus } from "../../icons";
 import { useCanvasContext } from "../../hooks/useCanvasContext";
+import { ActionButton } from "../ActionButton";
 
-const ZoomControl: React.FC = () => {
+export const ZoomControl: React.FC = () => {
   const { zoomRatio, zoomIn, zoomOut } = useCanvasContext();
 
   return (
-    <div className="zoom-control">
-      <button className="zoom-control__zoom-in" onClick={zoomIn}>
-        <Tooltip label="Zoom In" placement="top">
-          <Plus />
-        </Tooltip>
-      </button>
-      <p className="zoom-control__value">{`${Math.floor(zoomRatio * 100)}%`}</p>
-      <button className="zoom-control__zoom-out" onClick={zoomOut}>
-        <Tooltip label="Zoom Out" placement="top">
-          <Minus />
-        </Tooltip>
-      </button>
-    </div>
+    <HStack flex={1} align="center" justify="center">
+      <ActionButton
+        aria-label="Zoom out"
+        icon={<Minus />}
+        variant="ghost"
+        size="sm"
+        rounded="full"
+        onClick={zoomOut}
+      />
+      <Text>{`${Math.floor(zoomRatio * 100)}%`}</Text>
+      <ActionButton
+        aria-label="Zoom in"
+        icon={<Plus />}
+        variant="ghost"
+        size="sm"
+        rounded="full"
+        onClick={zoomIn}
+      />
+    </HStack>
   );
 };
-
-export default ZoomControl;

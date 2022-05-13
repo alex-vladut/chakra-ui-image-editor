@@ -1,45 +1,79 @@
 import React from "react";
-import { ColorModeSwitcher } from "./ColorModeSwitcher";
+import { Button, HStack } from "@chakra-ui/react";
 
-import UploadButton from "./UploadButton";
-import SaveButton from "./SaveButton";
-import ZoomControl from "./ZoomControl";
-import { UndoButton } from "./UndoButton";
-import { RedoButton } from "./RedoButton";
+import { ZoomControl } from "./ZoomControl";
+import { ColorModeSwitcher } from "./ColorModeSwitcher";
+import { ActionButton } from "../ActionButton";
+import { FileInput } from "../FileInput";
+import { Redo, Undo, Upload } from "../../icons";
 import { useCanvasContext } from "../../hooks/useCanvasContext";
+import { useUploadImageHandler } from "../../handlers/useUploadImageHandler";
 
 const Header: React.FC = () => {
-  const { mode } = useCanvasContext();
+  const { canvas, hasUndo, undo, hasRedo, redo } = useCanvasContext();
+  const upload = useUploadImageHandler();
+
   return (
-    <header className={`header ${mode ? "header_toolbar-open" : ""}`}>
-      <div className="header__items">
-        <div className="header__items-group">
-          <div className="header__item">
-            <UndoButton />
-          </div>
-          <div className="header__item">
-            <RedoButton />
-          </div>
-        </div>
-        <div className="header__items-group">
-          <div className="header__item">
-            <ZoomControl />
-          </div>
-        </div>
-        <div className="header__items-group">
-          <div className="header__item">
-            <UploadButton />
-          </div>
-          <div className="header__item">
-            <SaveButton />
-          </div>
-          <div className="header__item">
-            <ColorModeSwitcher />
-          </div>
-        </div>
-      </div>
-    </header>
+    <HStack as="header" align="center" w="full" p={2}>
+      <HStack>
+        <ActionButton
+          aria-label="Undo"
+          icon={<Undo />}
+          variant="ghost"
+          size="lg"
+          isDisabled={!hasUndo}
+          onClick={undo}
+        />
+        <ActionButton
+          aria-label="Redo"
+          icon={<Redo />}
+          variant="ghost"
+          size="lg"
+          isDisabled={!hasRedo}
+          onClick={redo}
+        />
+      </HStack>
+
+      <ZoomControl />
+
+      <HStack>
+        <FileInput onChange={onUpload} accept="image/*">
+          <ActionButton
+            aria-label="Upload"
+            icon={<Upload />}
+            variant="ghost"
+            size="lg"
+          />
+        </FileInput>
+        <Button variant="outline" rounded="2xl" onClick={onSave}>
+          Save
+        </Button>
+        <ColorModeSwitcher />
+      </HStack>
+    </HStack>
   );
+
+  function onSave() {
+    if (!canvas) return;
+
+    const randomNum = Math.floor(Math.random() * 1000);
+    const fileName = `image-${randomNum}.jpg`;
+    const link = document.createElement("a");
+    link.download = fileName;
+    link.href = canvas.toDataURL({ format: "image/jpeg" });
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    link.remove();
+  }
+
+  function onUpload(files: File[]) {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      upload(String(reader.result));
+    };
+    reader.readAsDataURL(files[0]);
+  }
 };
 
 export default Header;

@@ -277,13 +277,18 @@ export const CanvasContextProvider: FC<{ children: ReactNode }> = ({
     const { width: originalWidth, height: originalHeight } =
       image.getBoundingRect();
 
-    const containerHeight = containerElement.clientHeight;
+    const containerWidth = 0.98 * containerElement.clientWidth;
+    const containerHeight = 0.98 * containerElement.clientHeight;
     const ratio = originalWidth / originalHeight;
     let height = originalHeight * zoomRatio;
     let width = originalWidth * zoomRatio;
     if (height > containerHeight) {
       height = containerHeight;
       width = height * ratio;
+    }
+    if (width > containerWidth) {
+      width = containerWidth;
+      height = width / ratio;
     }
 
     return {

@@ -1,8 +1,8 @@
-import { ChakraProvider, theme } from "@chakra-ui/react";
+import { Box, ChakraProvider, HStack, theme, VStack } from "@chakra-ui/react";
 
-import Menu from "./components/Menu";
+import Menu from "./components/Menu/Menu";
 import Header from "./components/Header/Header";
-import Canvas from "./components/Canvas";
+import Canvas from "./components/Canvas/Canvas";
 import Toolbar from "./components/Toolbar/Toolbar";
 
 import { CanvasContextProvider } from "./hooks/useCanvasContext";
@@ -10,12 +10,16 @@ import { CropperContextProvider } from "./hooks/useCropperContext";
 
 export const Content = () => {
   return (
-    <div className="app">
-      <Header />
-      <Menu />
-      <Toolbar />
-      <Canvas />
-    </div>
+    <Box h="100vh" w="full" display="flex">
+      <HStack h="full">
+        <Menu />
+        <Toolbar />
+      </HStack>
+      <VStack h="full" flex={1}>
+        <Header />
+        <Canvas />
+      </VStack>
+    </Box>
   );
 };
 

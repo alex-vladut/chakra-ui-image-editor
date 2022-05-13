@@ -1,4 +1,19 @@
-import { ChangeEvent, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import {
+  Button,
+  FormControl,
+  FormLabel,
+  HStack,
+  InputGroup,
+  InputRightElement,
+  NumberInput,
+  NumberInputField,
+  SimpleGrid,
+  Text,
+  VStack,
+} from "@chakra-ui/react";
+
+import { ToolbarOption } from "./ToolbarOption";
 import { useCropHandler } from "../../handlers/useCropHandler";
 import { useCanvasContext } from "../../hooks/useCanvasContext";
 
@@ -30,14 +45,15 @@ export const ToolbarCrop: React.FC = () => {
   const [width, setWidth] = useState(0);
   const [height, setHeight] = useState(0);
 
-  const onChangeWidth = (event: ChangeEvent<HTMLInputElement>) => {
-    const value = parseInt(event.target.value, 10) || width;
+  const onChangeWidth = (_: string, value: number) => {
+    if (!value || isNaN(value)) return;
+
     setWidth(value);
     updateWidth(value);
   };
 
-  const onChangeHeight = (event: ChangeEvent<HTMLInputElement>) => {
-    const value = parseInt(event.target.value, 10) || height;
+  const onChangeHeight = (_: string, value: number) => {
+    if (!value || isNaN(value)) return;
     setHeight(value);
     updateHeight(value);
   };
@@ -65,74 +81,75 @@ export const ToolbarCrop: React.FC = () => {
   }, [activeInput, cropInfo]);
 
   return (
-    <div className="toolbar__content">
-      <div className="toolbar__form">
-        <p className="toolbar__form-label">Width</p>
-        <input
-          type="number"
-          className="toolbar__form-input"
-          value={Math.floor(width)}
-          min={0}
-          onChange={onChangeWidth}
-          onFocus={() => {
-            setActiveInput("width");
-          }}
-          onBlur={() => {
-            if (!cropInfo) return;
-            setActiveInput(null);
-            // updating input field to reflect the ratio
-            setWidth(cropInfo.width);
-          }}
-        />
-        <p className="toolbar__form-label">Height</p>
-        <input
-          type="number"
-          className="toolbar__form-input"
-          value={Math.floor(height)}
-          min={0}
-          onChange={onChangeHeight}
-          onFocus={() => {
-            setActiveInput("height");
-          }}
-          onBlur={() => {
-            if (!cropInfo) return;
-            setActiveInput(null);
-            setHeight(cropInfo.height);
-          }}
-        />
-      </div>
+    <VStack p={4} spacing={4}>
+      <HStack w="full" mb={4}>
+        <InputGroup>
+          <InputRightElement pointerEvents="none" children="w" />
+          <NumberInput
+            variant="flushed"
+            value={Math.floor(width)}
+            min={0}
+            onChange={onChangeWidth}
+            onFocus={() => {
+              setActiveInput("width");
+            }}
+            onBlur={() => {
+              if (!cropInfo) return;
+              setActiveInput(null);
+              // updating input field to reflect the ratio
+              setWidth(cropInfo.width);
+            }}
+          >
+            <NumberInputField />
+          </NumberInput>
+        </InputGroup>
 
-      <div className="toolbar__block">
-        <div className="toolbar__divider"></div>
-        <p className="toolbar__block-title">Aspect Ratio</p>
-        <div className="toolbar__options">
-          {aspectRatioList.map((aspectRatio, index) => {
-            return (
-              <div
-                key={index}
-                className={`toolbar__option ${
-                  ratioName === aspectRatio.name ? "toolbar__option_active" : ""
-                }`}
-                onClick={() => {
-                  setRatioName(aspectRatio.name);
-                  updateRatio(aspectRatio.value);
-                }}
-              >
-                {aspectRatio.name}
-              </div>
-            );
-          })}
-        </div>
-      </div>
-      <button
-        className="toolbar__action-btn"
-        onClick={() => {
-          crop();
-          close();
-        }}
-      >
+        <Text>x</Text>
+
+        <InputGroup>
+          <InputRightElement pointerEvents="none" children="h" />
+          <NumberInput
+            variant="flushed"
+            value={Math.floor(height)}
+            min={0}
+            onChange={onChangeHeight}
+            onFocus={() => {
+              setActiveInput("height");
+            }}
+            onBlur={() => {
+              if (!cropInfo) return;
+              setActiveInput(null);
+              setHeight(cropInfo.height);
+            }}
+          >
+            <NumberInputField />
+          </NumberInput>
+        </InputGroup>
+      </HStack>
+
+      <FormControl>
+        <FormLabel htmlFor="apect-ratio" mb={4}>
+          Aspect ratio
+        </FormLabel>
+        <SimpleGrid id="aspect-ratio" columns={2} gap={2}>
+          {aspectRatioList.map((aspectRatio, index) => (
+            <ToolbarOption
+              key={index}
+              isActive={ratioName === aspectRatio.name}
+              onClick={() => {
+                setRatioName(aspectRatio.name);
+                updateRatio(aspectRatio.value);
+              }}
+            >
+              {aspectRatio.name}
+            </ToolbarOption>
+          ))}
+        </SimpleGrid>
+      </FormControl>
+
+      <Button w="full" onClick={crop}>
         Apply
-      </button>
-    </div>
+      </Button>
+    </VStack>
   );
 };

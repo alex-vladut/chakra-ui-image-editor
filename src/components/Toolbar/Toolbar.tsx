@@ -1,10 +1,10 @@
 import React from "react";
-import { useCanvasContext } from "../../hooks/useCanvasContext";
-import { Close } from "../../icons";
-import { ToolbarAdjust } from "./ToolbarAdjust";
+import { Box, CloseButton, Divider, Heading, HStack } from "@chakra-ui/react";
 
+import { ToolbarAdjust } from "./ToolbarAdjust";
 import { ToolbarCrop } from "./ToolbarCrop";
 import { ToolbarFilters } from "./ToolbarFilters";
+import { useCanvasContext } from "../../hooks/useCanvasContext";
 
 const contentMap: { [name: string]: JSX.Element } = {
   // search: <ToolbarSearch />,
@@ -19,13 +19,16 @@ const Toolbar: React.FC = () => {
   const { mode, stopSession } = useCanvasContext();
 
   return mode ? (
-    <section className={`toolbar custom-scrollbar`}>
-      <div className="toolbar__header">
-        <h4 className="toolbar__title">{mode}</h4>
-        <Close onClick={stopSession} />
-      </div>
+    <Box as="section" w="xs" h="100vh">
+      <HStack align="center" justify="space-between" p={4}>
+        <Heading size="sm" textTransform="uppercase">
+          {mode}
+        </Heading>
+        <CloseButton onClick={stopSession} />
+      </HStack>
+      <Divider />
       {contentMap[mode]}
-    </section>
+    </Box>
   ) : null;
 };
 
