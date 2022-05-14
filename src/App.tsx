@@ -11,7 +11,7 @@ import { CropperContextProvider } from "./hooks/useCropperContext";
 export const Content = () => {
   return (
     <Box h="100vh" w="full" display="flex">
-      <HStack h="full">
+      <HStack h="full" spacing={0}>
         <Menu />
         <Toolbar />
       </HStack>

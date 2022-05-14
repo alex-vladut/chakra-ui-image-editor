@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Box,
   FormControl,
@@ -26,7 +26,9 @@ export const ToolbarAdjust: React.FC = () => {
     rotate,
     rotateLeft,
     rotateRight,
+    pushToHistory,
   } = useCanvasContext();
+  const [initialValue, setInitialValue] = useState<number | null>(null);
 
   return (
     <Box p={4}>
@@ -61,6 +63,8 @@ export const ToolbarAdjust: React.FC = () => {
           max={360}
           defaultValue={0}
           onChange={rotate}
+          onChangeStart={setInitialValue}
+          onChangeEnd={onChangeEnd}
         >
           <SliderMark value={-360} mt="1" ml="-2.5" fontSize="sm">
             -360
@@ -85,4 +89,13 @@ export const ToolbarAdjust: React.FC = () => {
       </FormControl>
     </Box>
   );
+
+  function onChangeEnd(value: number) {
+    if (initialValue !== value) {
+      pushToHistory({
+        type: "rotate",
+        data: value,
+      });
+    }
+  }
 };

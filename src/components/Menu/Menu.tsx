@@ -1,8 +1,8 @@
 import { ReactElement } from "react";
-import { VStack } from "@chakra-ui/react";
+import { useColorModeValue, VStack } from "@chakra-ui/react";
 
 import { ActionButton } from "../ActionButton";
-import { Crop, Flip, Pencil, Shapes, Text, Filter } from "../../icons";
+import { Crop, Flip, Filter } from "../../icons";
 import { Mode, useCanvasContext } from "../../hooks/useCanvasContext";
 
 const items: { icon: ReactElement; name: Mode }[] = [
@@ -14,9 +14,9 @@ const items: { icon: ReactElement; name: Mode }[] = [
     icon: <Flip />,
     name: "adjust",
   },
-  { icon: <Pencil />, name: "drawing" },
-  { icon: <Shapes />, name: "shapes" },
-  { icon: <Text />, name: "text" },
+  // { icon: <Pencil />, name: "drawing" },
+  // { icon: <Shapes />, name: "shapes" },
+  // { icon: <Text />, name: "text" },
   {
     icon: <Filter />,
     name: "filters",
@@ -25,9 +25,17 @@ const items: { icon: ReactElement; name: Mode }[] = [
 
 const Menu: React.FC = () => {
   const { mode, startSession } = useCanvasContext();
+  const bgColor = useColorModeValue("gray.50", "gray.700");
 
   return (
-    <VStack as="section" h="full" align="center" justify="center" p={2}>
+    <VStack
+      as="section"
+      h="full"
+      align="center"
+      justify="center"
+      p={2}
+      bgColor={bgColor}
+    >
       {items.map((item, index) => (
         <ActionButton
           key={index}

@@ -16,7 +16,7 @@ export function ToolbarOption(props: PropsWithChildren<Props & BoxProps>) {
       alignItems="center"
       p={4}
       fontWeight="semibold"
-      borderColor={isActive ? "#3f3f3f" : "#eaeaea"}
+      borderColor={isActive ? "blue.400" : "gray.500"}
       rounded="lg"
       borderWidth="4px"
       _hover={{

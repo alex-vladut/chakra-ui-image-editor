@@ -2,19 +2,21 @@ import {
   Button,
   FormControl,
   FormLabel,
-  Slider,
   SliderFilledTrack,
   SliderThumb,
   SliderTrack,
   Switch,
   VStack,
 } from "@chakra-ui/react";
+
 import { hexToRgb } from "../../helpers/colorConverter";
 import { useCanvasContext } from "../../hooks/useCanvasContext";
 import { ColorPicker } from "../ColorPicker";
+import { SliderFilterHistory } from "./SliderFilterHistory";
 
 export const ToolbarFilters = () => {
   const { filters, setFilterProperty, resetFilters } = useCanvasContext();
+
   return (
     <VStack p={4} spacing={4}>
       <FormControl
@@ -43,20 +45,18 @@ export const ToolbarFilters = () => {
           Brightness
           <span>{Math.round(filters.brightness * 250)}</span>
         </FormLabel>
-        <Slider
+        <SliderFilterHistory
           id="brightness"
-          value={Math.round(filters.brightness * 250)}
+          property="brightness"
+          multiplier={250}
           min={-100}
           max={100}
-          onChange={(value) => {
-            setFilterProperty("brightness", value / 250);
-          }}
         >
           <SliderTrack>
             <SliderFilledTrack />
           </SliderTrack>
           <SliderThumb />
-        </Slider>
+        </SliderFilterHistory>
       </FormControl>
 
       <FormControl>
@@ -68,20 +68,18 @@ export const ToolbarFilters = () => {
           Saturation
           <span>{Math.round(filters.saturation * 100)}</span>
         </FormLabel>
-        <Slider
+        <SliderFilterHistory
           id="saturation"
-          value={Math.round(filters.saturation * 100)}
+          property="saturation"
+          multiplier={100}
           min={-100}
           max={100}
-          onChange={(value) => {
-            setFilterProperty("saturation", value / 100);
-          }}
         >
           <SliderTrack>
             <SliderFilledTrack />
           </SliderTrack>
           <SliderThumb />
-        </Slider>
+        </SliderFilterHistory>
       </FormControl>
 
       <FormControl>
@@ -89,20 +87,18 @@ export const ToolbarFilters = () => {
           Hue
           <span>{Math.round(filters.hue * 100)}</span>
         </FormLabel>
-        <Slider
+        <SliderFilterHistory
           id="hue"
-          value={Math.round(filters.hue * 100)}
+          property="hue"
+          multiplier={100}
           min={-100}
           max={100}
-          onChange={(value) => {
-            setFilterProperty("hue", value / 100);
-          }}
         >
           <SliderTrack>
             <SliderFilledTrack />
           </SliderTrack>
           <SliderThumb />
-        </Slider>
+        </SliderFilterHistory>
       </FormControl>
 
       <FormControl>
@@ -114,20 +110,12 @@ export const ToolbarFilters = () => {
           Pixelate
           <span>{filters.pixelate}</span>
         </FormLabel>
-        <Slider
-          id="pixelate"
-          value={filters.pixelate}
-          min={1}
-          max={100}
-          onChange={(value) => {
-            setFilterProperty("pixelate", value);
-          }}
-        >
+        <SliderFilterHistory id="pixelate" property="pixelate" min={1} max={100}>
           <SliderTrack>
             <SliderFilledTrack />
           </SliderTrack>
           <SliderThumb />
-        </Slider>
+        </SliderFilterHistory>
       </FormControl>
 
       <FormControl>
@@ -139,20 +127,12 @@ export const ToolbarFilters = () => {
           Noise
           <span>{filters.noise}</span>
         </FormLabel>
-        <Slider
-          id="noise"
-          value={filters.noise}
-          min={0}
-          max={100}
-          onChange={(value) => {
-            setFilterProperty("noise", value);
-          }}
-        >
+        <SliderFilterHistory id="noise" property="noise" min={0} max={100}>
           <SliderTrack>
             <SliderFilledTrack />
           </SliderTrack>
           <SliderThumb />
-        </Slider>
+        </SliderFilterHistory>
       </FormControl>
 
       <FormControl>
@@ -164,20 +144,18 @@ export const ToolbarFilters = () => {
           Invert
           <span>{Math.round(filters.invert * 100)}</span>
         </FormLabel>
-        <Slider
+        <SliderFilterHistory
           id="invert"
-          value={Math.round(filters.invert * 100)}
+          property="invert"
+          multiplier={100}
           min={0}
           max={100}
-          onChange={(value) => {
-            setFilterProperty("invert", value / 100);
-          }}
         >
           <SliderTrack>
             <SliderFilledTrack />
           </SliderTrack>
           <SliderThumb />
-        </Slider>
+        </SliderFilterHistory>
       </FormControl>
 
       <FormControl>
@@ -185,20 +163,18 @@ export const ToolbarFilters = () => {
           Blur
           <span>{Math.round(filters.blur * 100)}</span>
         </FormLabel>
-        <Slider
+        <SliderFilterHistory
           id="blur"
-          value={Math.round(filters.blur * 100)}
+          property="blur"
+          multiplier={100}
           min={0}
           max={100}
-          onChange={(value) => {
-            setFilterProperty("blur", value / 100);
-          }}
         >
           <SliderTrack>
             <SliderFilledTrack />
           </SliderTrack>
           <SliderThumb />
-        </Slider>
+        </SliderFilterHistory>
       </FormControl>
 
       <FormControl>
@@ -206,20 +182,18 @@ export const ToolbarFilters = () => {
           Tint
           <span>{Math.round(filters.tintOpacity * 100)}</span>
         </FormLabel>
-        <Slider
+        <SliderFilterHistory
           id="tint"
-          value={Math.round(filters.tintOpacity * 100)}
+          property="tintOpacity"
+          multiplier={100}
           min={0}
           max={100}
-          onChange={(value) => {
-            setFilterProperty("tintOpacity", value / 100);
-          }}
         >
           <SliderTrack>
             <SliderFilledTrack />
           </SliderTrack>
           <SliderThumb />
-        </Slider>
+        </SliderFilterHistory>
       </FormControl>
 
       <ColorPicker

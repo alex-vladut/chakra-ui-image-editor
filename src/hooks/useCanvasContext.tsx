@@ -8,7 +8,6 @@ import {
   useMemo,
 } from "react";
 import { fabric } from "fabric";
-import { equals } from "../helpers/objects";
 
 type ActionType = "crop" | "flip-x" | "flip-y" | "rotate" | "filters";
 
@@ -17,7 +16,7 @@ type Action<T extends ActionType, D> = {
   data: D;
 };
 
-type Filters = {
+export type Filters = {
   brightness: number;
   contrast: number;
   saturation: number;
@@ -150,9 +149,6 @@ export const CanvasContextProvider: FC<{ children: ReactNode }> = ({
   const [history, setHistory] = useState<HistoryAction[]>([]);
   const [historyIndex, setHistoryIndex] = useState<number>(-1);
 
-  const [previousAngle, setPreviousAngle] = useState<number | null>(null);
-  const [previousFilters, setPreviousFilters] = useState<Filters | null>(null);
-
   const hasUndo = useMemo(
     () => history.length > 0 && historyIndex > -1,
     [history, historyIndex]
@@ -200,26 +196,8 @@ export const CanvasContextProvider: FC<{ children: ReactNode }> = ({
   );
 
   const stopSession = useCallback(() => {
-    if (mode === "adjust") {
-      if (previousAngle !== angle) {
-        pushToHistory({
-          type: "rotate",
-          data: angle,
-        });
-      }
-    } else if (mode === "filters") {
-      if (!equals(previousFilters, filters)) {
-        pushToHistory({
-          type: "filters",
-          data: filters,
-        });
-      }
-    }
-
-    setPreviousAngle(null);
-    setPreviousFilters(null);
     setMode(null);
-  }, [angle, filters, mode, previousAngle, previousFilters, pushToHistory]);
+  }, []);
 
   const startSession = useCallback(
     (newMode: Mode) => {
@@ -230,16 +208,9 @@ export const CanvasContextProvider: FC<{ children: ReactNode }> = ({
         if (newMode === mode) return;
       }
 
-      // store the current values to be compared when the session ends
-      if (newMode === "adjust") {
-        setPreviousAngle(angle);
-      } else if (newMode === "filters") {
-        setPreviousFilters(filters);
-      }
-
       setMode(newMode);
     },
-    [angle, filters, mode, stopSession]
+    [mode, stopSession]
   );
 
   const changeZoomRatio = useCallback((value: number) => {
@@ -310,7 +281,6 @@ export const CanvasContextProvider: FC<{ children: ReactNode }> = ({
     if (result > 360) {
       result -= 360;
     }
-    setPreviousAngle(result);
     pushToHistory({
       type: "rotate",
       data: result,
@@ -325,7 +295,6 @@ export const CanvasContextProvider: FC<{ children: ReactNode }> = ({
       result += 360;
     }
 
-    setPreviousAngle(result);
     pushToHistory({
       type: "rotate",
       data: result,
