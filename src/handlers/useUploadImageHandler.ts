@@ -18,10 +18,6 @@ export function useUploadImageHandler() {
     (imageUrl: string) => {
       if (!containerElement) return;
 
-      const imageElement = new Image();
-      imageElement.setAttribute("crossorigin", "anonymous");
-      imageElement.src = imageUrl;
-
       fabric.Image.fromURL(imageUrl, (originalImage) => {
         const { height: originalHeight } = originalImage.getBoundingRect();
 

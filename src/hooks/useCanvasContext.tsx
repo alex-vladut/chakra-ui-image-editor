@@ -6,6 +6,7 @@ import {
   useContext,
   useCallback,
   useMemo,
+  useEffect,
 } from "react";
 import { fabric } from "fabric";
 
@@ -231,45 +232,46 @@ export const CanvasContextProvider: FC<{ children: ReactNode }> = ({
     changeZoomRatio(zoomRatio - SCALE_STEP);
   }, [changeZoomRatio, zoomRatio]);
 
-  const { width, height, actualZoomRatio } = useMemo(() => {
+  const [dimensions, setDimensions] = useState({
+    width: 0,
+    height: 0,
+    actualZoomRatio: 1,
+  });
+
+  useEffect(() => {
     if (!url || !containerElement) {
-      return { width: 0, height: 0, actualZoomRatio: 1 };
+      setDimensions({ width: 0, height: 0, actualZoomRatio: 1 });
+      return;
     }
 
-    const imageElement = new Image();
-    imageElement.setAttribute("crossorigin", "anonymous");
-    imageElement.src = url;
-    const image = new fabric.Image(imageElement, {
-      selectable: false,
-      hoverCursor: "default",
-      crossOrigin: "anonymous",
+    fabric.Image.fromURL(url, (image) => {
+      image.rotate(angle).setCoords();
+      const { width: originalWidth, height: originalHeight } =
+        image.getBoundingRect();
+
+      const containerWidth = 0.98 * containerElement.clientWidth;
+      const containerHeight = 0.98 * containerElement.clientHeight;
+      const ratio = originalWidth / originalHeight;
+      let height = originalHeight * zoomRatio;
+      let width = originalWidth * zoomRatio;
+      if (height > containerHeight) {
+        height = containerHeight;
+        width = height * ratio;
+      }
+      if (width > containerWidth) {
+        width = containerWidth;
+        height = width / ratio;
+      }
+
+      setDimensions({
+        width,
+        height,
+        actualZoomRatio:
+          !angle && originalHeight * zoomRatio > containerHeight
+            ? (originalHeight * zoomRatio) / containerHeight
+            : 1,
+      });
     });
-    image.rotate(angle).setCoords();
-    const { width: originalWidth, height: originalHeight } =
-      image.getBoundingRect();
-
-    const containerWidth = 0.98 * containerElement.clientWidth;
-    const containerHeight = 0.98 * containerElement.clientHeight;
-    const ratio = originalWidth / originalHeight;
-    let height = originalHeight * zoomRatio;
-    let width = originalWidth * zoomRatio;
-    if (height > containerHeight) {
-      height = containerHeight;
-      width = height * ratio;
-    }
-    if (width > containerWidth) {
-      width = containerWidth;
-      height = width / ratio;
-    }
-
-    return {
-      width,
-      height,
-      actualZoomRatio:
-        !angle && originalHeight * zoomRatio > containerHeight
-          ? (originalHeight * zoomRatio) / containerHeight
-          : 1,
-    };
   }, [angle, containerElement, url, zoomRatio]);
 
   const rotate = useCallback((value: number) => {
@@ -338,8 +340,8 @@ export const CanvasContextProvider: FC<{ children: ReactNode }> = ({
     setOriginalUrl,
     url,
     setUrl,
-    width,
-    height,
+    width: dimensions.width,
+    height: dimensions.height,
     // TODO: maybe it is not necessary to store a reference to the canvas
     canvas,
     setCanvas,
@@ -349,7 +351,7 @@ export const CanvasContextProvider: FC<{ children: ReactNode }> = ({
     setActiveObject,
     baseScale,
     setBaseScale,
-    actualZoomRatio,
+    actualZoomRatio: dimensions.actualZoomRatio,
     zoomRatio,
     setZoomRatio: changeZoomRatio,
     zoomIn,

@@ -11,6 +11,7 @@ import {
 
 import { hexToRgb } from "../../helpers/colorConverter";
 import { useCanvasContext } from "../../hooks/useCanvasContext";
+import { CenterSliderFilledTrack } from "../CenterSliderFilledTrack";
 import { ColorPicker } from "../ColorPicker";
 import { SliderFilterHistory } from "./SliderFilterHistory";
 
@@ -53,7 +54,7 @@ export const ToolbarFilters = () => {
           max={100}
         >
           <SliderTrack>
-            <SliderFilledTrack />
+            <CenterSliderFilledTrack />
           </SliderTrack>
           <SliderThumb />
         </SliderFilterHistory>
@@ -76,7 +77,7 @@ export const ToolbarFilters = () => {
           max={100}
         >
           <SliderTrack>
-            <SliderFilledTrack />
+            <CenterSliderFilledTrack />
           </SliderTrack>
           <SliderThumb />
         </SliderFilterHistory>
@@ -95,7 +96,7 @@ export const ToolbarFilters = () => {
           max={100}
         >
           <SliderTrack>
-            <SliderFilledTrack />
+          <CenterSliderFilledTrack />
           </SliderTrack>
           <SliderThumb />
         </SliderFilterHistory>
@@ -110,7 +111,12 @@ export const ToolbarFilters = () => {
           Pixelate
           <span>{filters.pixelate}</span>
         </FormLabel>
-        <SliderFilterHistory id="pixelate" property="pixelate" min={1} max={100}>
+        <SliderFilterHistory
+          id="pixelate"
+          property="pixelate"
+          min={1}
+          max={100}
+        >
           <SliderTrack>
             <SliderFilledTrack />
           </SliderTrack>

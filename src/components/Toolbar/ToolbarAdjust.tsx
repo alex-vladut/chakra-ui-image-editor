@@ -4,7 +4,6 @@ import {
   FormControl,
   FormLabel,
   Slider,
-  SliderFilledTrack,
   SliderMark,
   SliderThumb,
   SliderTrack,
@@ -15,6 +14,7 @@ import {
 import { Left, Right, FlipX, FlipY } from "../../icons";
 import { useCanvasContext } from "../../hooks/useCanvasContext";
 import { ToolbarOption } from "./ToolbarOption";
+import { CenterSliderFilledTrack } from "../CenterSliderFilledTrack";
 
 export const ToolbarAdjust: React.FC = () => {
   const {
@@ -82,7 +82,7 @@ export const ToolbarAdjust: React.FC = () => {
             360
           </SliderMark>
           <SliderTrack>
-            <SliderFilledTrack />
+            <CenterSliderFilledTrack />
           </SliderTrack>
           <SliderThumb />
         </Slider>

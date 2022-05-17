@@ -24,7 +24,7 @@ const contentMap: { [name: string]: JSX.Element } = {
 
 const Toolbar: React.FC = () => {
   const { mode, stopSession } = useCanvasContext();
-  const bgColor = useColorModeValue("gray.100", "gray.600");
+  const bgColor = useColorModeValue("gray.300", "gray.900");
 
   return mode ? (
     <Box as="section" w="2xs" h="100vh" bgColor={bgColor}>
