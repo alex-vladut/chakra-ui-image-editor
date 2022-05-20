@@ -42,10 +42,16 @@ export type Ratio = {
 export function useCropHandler() {
   const innerRectRef = useRef<fabric.Group | null>(null);
   const outerRectRef = useRef<fabric.Path | null>(null);
-  const { canvas, width, height, pushToHistory, stopSession } =
-    useCanvasContext();
-  // TODO: this could probably be turned into a single number instead of holding both width and height
-  const [ratio, setRatio] = useState<Ratio | null>(null);
+  const {
+    canvas,
+    width,
+    height,
+    baseScale,
+    pushToHistory,
+    stopSession,
+    setZoomRatio,
+  } = useCanvasContext();
+  const [ratio, setRatio] = useState<number | null>(null);
   const [cropInfo, setCropInfo] = useState<CropInfo | null>(null);
   const [isFocused, setFocused] = useState(false);
 
@@ -54,14 +60,15 @@ export function useCropHandler() {
   const open = useCallback(() => {
     if (!canvas) return;
 
+    setZoomRatio(baseScale);
     setCropInfo({
       top: 0,
       left: 0,
       width,
       height,
     });
-    setRatio({ width, height });
-  }, [canvas, height, width]);
+    setRatio(width / height);
+  }, [baseScale, canvas, height, setZoomRatio, width]);
 
   const close = useCallback(() => {
     if (!canvas) return;
@@ -189,7 +196,7 @@ export function useCropHandler() {
   );
 
   const updateRatio = useCallback(
-    (ratio: Ratio) => {
+    (ratio: number | null) => {
       if (!canvas || !canvas.width || !canvas.height || !cropInfo) return;
 
       const { width, height } = getInitialSize(canvas, ratio);
@@ -198,8 +205,8 @@ export function useCropHandler() {
       setCropInfo({
         width,
         height,
-        left: canvas.width / 2 - cropInfo.width / 2,
-        top: canvas.height / 2 - cropInfo.height / 2,
+        left: canvas.width / 2 - width / 2,
+        top: canvas.height / 2 - height / 2,
       });
       setFocused(true);
       setRatio(ratio);
@@ -353,7 +360,7 @@ export function useCropHandler() {
   };
 }
 
-function getInitialSize(canvas: fabric.Canvas, ratio: Ratio | null) {
+function getInitialSize(canvas: fabric.Canvas, ratio: number | null) {
   let width = canvas.width;
   let height = canvas.height;
   if (ratio && width && height) {
@@ -627,7 +634,7 @@ function adjustCropZoneWithMinValues(
   values: CropInfo,
   cropInfo: CropInfo,
   corner: string,
-  ratio: Ratio
+  ratio: number | null
 ): CropInfo {
   const { minWidth, minHeight, minX, minY } = getMinSize(ratio, cropInfo);
 
@@ -648,7 +655,7 @@ function adjustCropZoneWithMinValues(
 }
 
 function getMinSize(
-  ratio: Ratio,
+  ratio: number | null,
   cropInfo: CropInfo
 ): {
   minWidth: number;
@@ -676,19 +683,10 @@ function getMinSize(
 function convertAspectRatioToActualSize(
   containerWidth: number,
   containerHeight: number,
-  ratio: Ratio
-): Ratio {
-  if (!ratio) {
-    return null;
-  }
-  const height = Math.min(
-    (ratio.height * containerWidth) / ratio.width,
-    containerHeight
-  );
-  const width = Math.min(
-    (ratio.width / ratio.height) * containerHeight,
-    containerWidth
-  );
+  ratio: number
+): { width: number; height: number } {
+  const height = Math.min(containerWidth / ratio, containerHeight);
+  const width = Math.min(ratio * containerHeight, containerWidth);
   return { width, height };
 }
 
@@ -697,7 +695,7 @@ function adjustCropZoneWithAspectRatio(
   cropInfo: CropInfo,
   corner: string,
   canvas: fabric.Canvas,
-  ratio: Ratio
+  ratio: number | null
 ): CropInfo {
   if (!ratio) {
     return cropZoneInfo;
@@ -735,7 +733,7 @@ function getMaxSize(
   corner: string = "br",
   canvas: fabric.Canvas,
   cropInfo: CropInfo,
-  ratio: Ratio
+  ratio: number | null
 ) {
   if (!canvas.width || !canvas.height) return null;
 
@@ -780,16 +778,16 @@ function getMaxSize(
   };
 }
 
-function getProportionalWidthValue(height: number, ratio: Ratio): number {
+function getProportionalWidthValue(height: number, ratio: number): number {
   if (!ratio) {
     return height;
   }
-  return (ratio.width / ratio.height) * height;
+  return ratio * height;
 }
 
-function getProportionalHeightValue(width: number, ratio: Ratio): number {
+function getProportionalHeightValue(width: number, ratio: number): number {
   if (!ratio) {
     return width;
   }
-  return width / (ratio.width / ratio.height);
+  return width / ratio;
 }

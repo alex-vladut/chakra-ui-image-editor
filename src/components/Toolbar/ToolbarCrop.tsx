@@ -15,7 +15,6 @@ import {
 
 import { ToolbarOption } from "./ToolbarOption";
 import { useCropHandler } from "../../handlers/useCropHandler";
-import { useCanvasContext } from "../../hooks/useCanvasContext";
 
 const aspectRatioList = [
   { name: "custom", value: null },
@@ -31,7 +30,6 @@ export const ToolbarCrop: React.FC = () => {
   const [activeInput, setActiveInput] = useState<"height" | "width" | null>(
     null
   );
-  const { setZoomRatio } = useCanvasContext();
   const {
     cropInfo,
     open,
@@ -59,13 +57,12 @@ export const ToolbarCrop: React.FC = () => {
   };
 
   useEffect(() => {
-    setZoomRatio(1);
     open();
 
     return () => {
       close();
     };
-  }, [close, open, setZoomRatio]);
+  }, [close, open]);
 
   useEffect(() => {
     if (!cropInfo) return;
@@ -138,7 +135,11 @@ export const ToolbarCrop: React.FC = () => {
               isActive={ratioName === aspectRatio.name}
               onClick={() => {
                 setRatioName(aspectRatio.name);
-                updateRatio(aspectRatio.value);
+                updateRatio(
+                  aspectRatio.value
+                    ? aspectRatio.value.width / aspectRatio.value.height
+                    : null
+                );
               }}
             >
               {aspectRatio.name}

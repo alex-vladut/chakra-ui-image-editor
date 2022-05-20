@@ -3,7 +3,7 @@ import { isArrow, isCtrlShiftZ, isCtrlZ } from "../utils/keyboard";
 import { useCanvasContext } from "../hooks/useCanvasContext";
 
 export function useEventHandlers() {
-  const { canvas, setActiveObject, activeObject, zoomIn, zoomOut } =
+  const { canvas, mode, setActiveObject, activeObject, zoomIn, zoomOut } =
     useCanvasContext();
 
   /**
@@ -12,7 +12,7 @@ export function useEventHandlers() {
 
   const onMouseWheel = useCallback(
     (event: fabric.IEvent) => {
-      if (canvas) {
+      if (canvas && !mode) {
         const delta = (event.e as any).deltaY;
         if (delta > 0) {
           zoomOut();
@@ -23,7 +23,7 @@ export function useEventHandlers() {
       event.e.preventDefault();
       event.e.stopPropagation();
     },
-    [canvas, zoomIn, zoomOut]
+    [canvas, mode, zoomIn, zoomOut]
   );
 
   useEffect(() => {
