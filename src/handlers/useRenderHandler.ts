@@ -17,10 +17,16 @@ export function useRenderHandler() {
     flipX,
     flipY,
     filters,
+    objects,
+    isRendering,
   } = useCanvasContext();
 
   useEffect(() => {
     if (!canvas || !url) return;
+
+    // TODO: setting it to ignore adding the objects to history while rendering de to the event being triggered
+    // but there should be a better solutio as this is really hacky
+    isRendering.current = true;
 
     canvas.clear();
 
@@ -32,9 +38,8 @@ export function useRenderHandler() {
       selectable: false,
       hoverCursor: "default",
       crossOrigin: "anonymous",
-      // TODO: ste it once flip functionality is supported
-      // flipX: this.canvas.flipX,
-      // flipY: this.canvas.flipY,
+      flipX,
+      flipY,
       name: IMAGE_OBJECT_NAME,
     });
 
@@ -88,17 +93,18 @@ export function useRenderHandler() {
     image.applyFilters();
 
     canvas.add(image);
+    canvas.add(...objects);
     canvas.zoomToPoint(getCenter(canvas), actualZoomRatio);
 
     if (flipX) {
       canvas.forEachObject((obj) => {
-        if (!canvas.width) return;
+        if (!canvas.width || obj.name === IMAGE_OBJECT_NAME) return;
         let { width } = obj.getBoundingRect();
         obj
           .set({
             // @ts-ignore
             // angle: parseFloat((obj.angle || 0) * -1),
-            flipX: !obj.flipX,
+            flipX,
             left: canvas.width - width - (obj.left || 0),
           })
           .setCoords();
@@ -106,13 +112,13 @@ export function useRenderHandler() {
     }
     if (flipY) {
       canvas.forEachObject((obj) => {
-        if (!canvas.height) return;
+        if (!canvas.height || obj.name === IMAGE_OBJECT_NAME) return;
         let { height } = obj.getBoundingRect();
         obj
           .set({
             // @ts-ignore
             // angle: parseFloat((obj.angle || 0) * -1),
-            flipY: !obj.flipY,
+            flipY,
             top: canvas.height - height - (obj.top || 0),
           })
           .setCoords();
@@ -122,6 +128,9 @@ export function useRenderHandler() {
       image.rotate(angle).setCoords();
     }
     image.center();
+
+    isRendering.current = false;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     actualZoomRatio,
     angle,
@@ -133,7 +142,10 @@ export function useRenderHandler() {
     width,
     zoomRatio,
     filters,
+    objects,
   ]);
+
+  useEffect(() => {}, []);
 }
 
 function getCenter(canvas: fabric.Canvas) {

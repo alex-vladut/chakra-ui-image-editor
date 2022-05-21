@@ -2,7 +2,7 @@ import { ReactElement } from "react";
 import { useColorModeValue, VStack } from "@chakra-ui/react";
 
 import { ActionButton } from "../ActionButton";
-import { Crop, Flip, Filter } from "../../icons";
+import { Crop, Flip, Filter, Pencil } from "../../icons";
 import { Mode, useCanvasContext } from "../../hooks/useCanvasContext";
 
 const items: { icon: ReactElement; name: Mode }[] = [
@@ -14,7 +14,7 @@ const items: { icon: ReactElement; name: Mode }[] = [
     icon: <Flip />,
     name: "adjust",
   },
-  // { icon: <Pencil />, name: "drawing" },
+  { icon: <Pencil />, name: "drawing" },
   // { icon: <Shapes />, name: "shapes" },
   // { icon: <Text />, name: "text" },
   {

@@ -9,11 +9,20 @@ import {
   useEffect,
   createRef,
   RefObject,
+  useRef,
+  MutableRefObject,
 } from "react";
 import { fabric } from "fabric";
 import { useDimensions } from "@chakra-ui/react";
 
-type ActionType = "crop" | "flip-x" | "flip-y" | "rotate" | "filters";
+type ActionType =
+  | "crop"
+  | "flip-x"
+  | "flip-y"
+  | "rotate"
+  | "filters"
+  | "add-object"
+  | "remove-object";
 
 type Action<T extends ActionType, D> = {
   type: T;
@@ -39,7 +48,9 @@ type HistoryAction =
   | Action<"flip-x", boolean>
   | Action<"flip-y", boolean>
   | Action<"rotate", number>
-  | Action<"filters", Filters>;
+  | Action<"filters", Filters>
+  | Action<"add-object", fabric.Object>
+  | Action<"remove-object", fabric.Object>;
 
 export type Mode =
   | "search"
@@ -66,7 +77,7 @@ const INITIAL_STATE = {
     brightness: 0,
     contrast: 0,
     saturation: 0,
-    tintColor: "#000000",
+    tintColor: "#303030",
     tintOpacity: 0,
     invert: 0,
     hue: 0,
@@ -75,6 +86,7 @@ const INITIAL_STATE = {
     pixelate: 1,
     sharpen: false,
   },
+  objects: [],
 };
 
 interface CanvasContext {
@@ -115,6 +127,18 @@ interface CanvasContext {
   ): void;
   resetFilters: () => void;
 
+  lineColor: string;
+  setLineColor: (lineColor: string) => void;
+  lineWidth: number;
+  setLineWidth: (lineWidth: number) => void;
+  lineOpacity: number;
+  setLineOpacity: (lineOpacity: number) => void;
+  isLineStraight: boolean;
+  setIsLineStraight: (isLineStraight: boolean) => void;
+  objects: fabric.Object[];
+
+  isRendering: MutableRefObject<boolean>;
+
   hasUndo: boolean;
   hasRedo: boolean;
   undo: () => void;
@@ -148,6 +172,14 @@ export const CanvasContextProvider: FC<{ children: ReactNode }> = ({
 
   const [filters, setFilters] = useState<Filters>(INITIAL_STATE.filters);
 
+  // free drawing mode
+  const [lineColor, setLineColor] = useState<string>("16,16,16");
+  const [lineWidth, setLineWidth] = useState<number>(1);
+  const [lineOpacity, setLineOpacity] = useState<number>(1);
+  const [isLineStraight, setIsLineStraight] = useState(false);
+  const [objects, setObjects] = useState<fabric.Object[]>([]);
+  const isRendering = useRef<boolean>(false);
+
   const [history, setHistory] = useState<HistoryAction[]>([]);
   const [historyIndex, setHistoryIndex] = useState<number>(-1);
 
@@ -171,6 +203,7 @@ export const CanvasContextProvider: FC<{ children: ReactNode }> = ({
     setFlipY(state.flipY);
     setAngle(state.angle);
     setFilters(state.filters);
+    setObjects(state.objects);
 
     setHistoryIndex(newIndex);
   }, [history, historyIndex, originalUrl]);
@@ -183,6 +216,7 @@ export const CanvasContextProvider: FC<{ children: ReactNode }> = ({
     setFlipY(state.flipY);
     setAngle(state.angle);
     setFilters(state.filters);
+    setObjects(state.objects);
 
     setHistoryIndex(newIndex);
   }, [history, historyIndex, originalUrl]);
@@ -374,6 +408,18 @@ export const CanvasContextProvider: FC<{ children: ReactNode }> = ({
     setFilterProperty,
     resetFilters,
 
+    lineColor,
+    setLineColor,
+    lineWidth,
+    setLineWidth,
+    lineOpacity,
+    setLineOpacity,
+    isLineStraight,
+    setIsLineStraight,
+    objects,
+
+    isRendering,
+
     hasUndo,
     hasRedo,
     undo,
@@ -412,6 +458,7 @@ type State = {
   flipX: boolean;
   flipY: boolean;
   filters: Filters;
+  objects: fabric.Object[];
 };
 
 function compileState(
@@ -437,6 +484,8 @@ function historyReducer(state: State, action: HistoryAction): State {
       return { ...state, angle: action.data };
     case "filters":
       return { ...state, filters: action.data };
+    case "add-object":
+      return { ...state, objects: [...state.objects, action.data] };
     default:
       return state;
   }
