@@ -7,8 +7,11 @@ import {
   useCallback,
   useMemo,
   useEffect,
+  createRef,
+  RefObject,
 } from "react";
 import { fabric } from "fabric";
+import { useDimensions } from "@chakra-ui/react";
 
 type ActionType = "crop" | "flip-x" | "flip-y" | "rotate" | "filters";
 
@@ -87,8 +90,7 @@ interface CanvasContext {
   setUrl: (url: string) => void;
   width: number;
   height: number;
-  containerElement: HTMLDivElement | null;
-  setContainerElement: (containerElement: HTMLDivElement) => void;
+  containerElRef: RefObject<HTMLDivElement>;
   canvas: fabric.Canvas | null;
   setCanvas: (canvas: fabric.Canvas) => void;
   activeObject: fabric.Object | null;
@@ -134,8 +136,7 @@ export const CanvasContextProvider: FC<{ children: ReactNode }> = ({
   const [url, setUrl] = useState<string | null>(null);
 
   const [canvas, setCanvas] = useState<fabric.Canvas | null>(null);
-  const [containerElement, setContainerElement] =
-    useState<HTMLDivElement | null>(null);
+  const containerElRef = createRef<HTMLDivElement>();
   const [activeObject, setActiveObject] = useState<fabric.Object | null>(null);
 
   const [baseScale, setBaseScale] = useState(SCALE_DEFAULT_VALUE);
@@ -149,6 +150,8 @@ export const CanvasContextProvider: FC<{ children: ReactNode }> = ({
 
   const [history, setHistory] = useState<HistoryAction[]>([]);
   const [historyIndex, setHistoryIndex] = useState<number>(-1);
+
+  const containerDimensions = useDimensions(containerElRef, true);
 
   const hasUndo = useMemo(
     () => history.length > 0 && historyIndex > -1,
@@ -239,18 +242,20 @@ export const CanvasContextProvider: FC<{ children: ReactNode }> = ({
   });
 
   useEffect(() => {
-    if (!url || !containerElement) {
+    if (!url || !containerDimensions) {
       setDimensions({ width: 0, height: 0, actualZoomRatio: 1 });
       return;
     }
 
     fabric.Image.fromURL(url, (image) => {
+      if (!containerDimensions) return;
+
       image.rotate(angle).setCoords();
       const { width: originalWidth, height: originalHeight } =
         image.getBoundingRect();
 
-      const containerWidth = 0.98 * containerElement.clientWidth;
-      const containerHeight = 0.98 * containerElement.clientHeight;
+      const containerWidth = 0.98 * containerDimensions.contentBox.width;
+      const containerHeight = 0.98 * containerDimensions.contentBox.height;
       const ratio = originalWidth / originalHeight;
       let height = originalHeight * zoomRatio;
       let width = originalWidth * zoomRatio;
@@ -272,7 +277,7 @@ export const CanvasContextProvider: FC<{ children: ReactNode }> = ({
             : 1,
       });
     });
-  }, [angle, containerElement, url, zoomRatio]);
+  }, [angle, containerDimensions, url, zoomRatio]);
 
   const rotate = useCallback((value: number) => {
     setAngle(value);
@@ -345,8 +350,7 @@ export const CanvasContextProvider: FC<{ children: ReactNode }> = ({
     // TODO: maybe it is not necessary to store a reference to the canvas
     canvas,
     setCanvas,
-    containerElement,
-    setContainerElement,
+    containerElRef,
     activeObject,
     setActiveObject,
     baseScale,

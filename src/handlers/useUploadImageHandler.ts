@@ -5,7 +5,7 @@ import { useCanvasContext } from "../hooks/useCanvasContext";
 
 export function useUploadImageHandler() {
   const {
-    containerElement,
+    containerElRef,
     originalUrl,
     setOriginalUrl,
     setUrl,
@@ -16,12 +16,13 @@ export function useUploadImageHandler() {
 
   return useCallback(
     (imageUrl: string) => {
-      if (!containerElement) return;
-
       fabric.Image.fromURL(imageUrl, (originalImage) => {
         const { height: originalHeight } = originalImage.getBoundingRect();
 
-        const baseScale = getBaseScale(containerElement, originalHeight);
+        const baseScale = getBaseScale(
+          containerElRef.current?.clientHeight,
+          originalHeight
+        );
 
         if (!originalUrl) {
           setOriginalUrl(imageUrl);
@@ -33,7 +34,7 @@ export function useUploadImageHandler() {
       });
     },
     [
-      containerElement,
+      containerElRef,
       originalUrl,
       reset,
       setBaseScale,
@@ -45,11 +46,10 @@ export function useUploadImageHandler() {
 }
 
 function getBaseScale(
-  containerElement: HTMLDivElement,
+  containerHeight: number | null | undefined,
   height: number
 ): number {
-  const containerHeight = containerElement.clientHeight ?? height;
-  const scale = Math.floor((containerHeight * 100) / height);
+  const scale = Math.floor(((containerHeight ?? height) * 100) / height);
   if (scale) {
     return (scale - (scale % 10)) / 100;
   }

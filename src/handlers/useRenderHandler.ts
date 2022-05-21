@@ -8,7 +8,6 @@ const IMAGE_OBJECT_NAME = "image";
 export function useRenderHandler() {
   const {
     canvas,
-    containerElement,
     width,
     height,
     url,
@@ -21,7 +20,7 @@ export function useRenderHandler() {
   } = useCanvasContext();
 
   useEffect(() => {
-    if (!canvas || !containerElement || !url) return;
+    if (!canvas || !url) return;
 
     canvas.clear();
 
@@ -127,7 +126,6 @@ export function useRenderHandler() {
     actualZoomRatio,
     angle,
     canvas,
-    containerElement,
     flipX,
     flipY,
     height,
